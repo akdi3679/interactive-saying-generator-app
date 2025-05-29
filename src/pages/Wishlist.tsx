@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
 import { Product } from '../models/types';
-import { useAuth } from '../context/AuthContext';
+import { useDatabase } from '../hooks/useDatabase';
 import { supabase } from '../lib/supabase';
 import { ProductService } from '../services/ProductService';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const Wishlist = () => {
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user } = useDatabase();
   const navigate = useNavigate();
   
   useEffect(() => {
