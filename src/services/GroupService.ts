@@ -19,7 +19,8 @@ export const GroupService = {
 
   async getGroups(): Promise<Group[]> {
     try {
-      return await mongoGetGroups();
+      const groups = await mongoGetGroups();
+      return groups as Group[];
     } catch (error) {
       console.error('Error fetching groups:', error);
       return [];
@@ -29,7 +30,8 @@ export const GroupService = {
   async getGroupById(groupId: string): Promise<Group | null> {
     try {
       const groups = await mongoGetGroups();
-      return groups.find((group: Group) => group.id === groupId) || null;
+      const typedGroups = groups as Group[];
+      return typedGroups.find((group: Group) => group.id === groupId) || null;
     } catch (error) {
       console.error('Error fetching group:', error);
       return null;
@@ -70,7 +72,8 @@ export const GroupService = {
   async initializeDefaultGroups(): Promise<void> {
     try {
       const groups = await mongoGetGroups();
-      const hasTopSale = groups.some((g: Group) => g.name === 'Top Sale');
+      const typedGroups = groups as Group[];
+      const hasTopSale = typedGroups.some((g: Group) => g.name === 'Top Sale');
       
       if (!hasTopSale) {
         await this.createGroup({

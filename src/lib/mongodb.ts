@@ -1,103 +1,64 @@
 
-import { MongoClient, ServerApiVersion } from 'mongodb';
 import { DATABASE_CONFIG } from '../config/database';
 
-let client: MongoClient | null = null;
-let isConnected = false;
+// Mock MongoDB implementation for browser compatibility
+// In a real application, this would be handled server-side
+
+let mockDatabase: any = {
+  users: [],
+  groups: [],
+  groupMemberships: []
+};
 
 export const connectToMongoDB = async () => {
-  if (isConnected && client) {
-    console.log('Already connected to MongoDB');
-    return client;
-  }
-
-  try {
-    const uri = DATABASE_CONFIG.mongodb.uri;
-    
-    if (!uri || uri.includes('your-username')) {
-      console.error('MongoDB URI is required. Please add your MongoDB connection string to src/config/database.ts');
-      return null;
-    }
-
-    client = new MongoClient(uri, {
-      serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-      }
-    });
-
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log("Connected to MongoDB!");
-    isConnected = true;
-    return client;
-  } catch (error) {
-    console.error('Failed to connect to MongoDB:', error);
-    return null;
-  }
+  // Mock connection for browser environment
+  console.log('Mock MongoDB connection established');
+  return { connected: true };
 };
 
 export const createUser = async (email: string, password: string, name: string) => {
   try {
-    const mongoClient = await connectToMongoDB();
-    if (!mongoClient) {
-      return { error: "MongoDB connection failed", data: null };
-    }
-
-    const db = mongoClient.db("marketplace");
-    const usersCollection = db.collection("users");
-
     // Check if user already exists
-    const existingUser = await usersCollection.findOne({ email });
+    const existingUser = mockDatabase.users.find((user: any) => user.email === email);
     if (existingUser) {
       return { error: "User with this email already exists", data: null };
     }
 
-    // In a real application, you would hash the password before storing
-    // This is just a simplified example
+    // Create new user
     const newUser = {
+      id: Math.random().toString(36).substr(2, 9),
       email,
-      password, // NEVER store plaintext passwords in production
+      password, // In production, this would be hashed
       name,
       createdAt: new Date(),
     };
 
-    const result = await usersCollection.insertOne(newUser);
-    return { data: { id: result.insertedId.toString(), email, name }, error: null };
+    mockDatabase.users.push(newUser);
+    return { data: { id: newUser.id, email, name }, error: null };
   } catch (error) {
-    console.error('Error creating user in MongoDB:', error);
+    console.error('Error creating user:', error);
     return { error: "Failed to create user", data: null };
   }
 };
 
 export const validateUser = async (email: string, password: string) => {
   try {
-    const mongoClient = await connectToMongoDB();
-    if (!mongoClient) {
-      return { error: "MongoDB connection failed", data: null };
-    }
-
-    const db = mongoClient.db("marketplace");
-    const usersCollection = db.collection("users");
-
     // Find user by email and password
-    // In a real application, you would compare hashed passwords
-    const user = await usersCollection.findOne({ email, password });
+    const user = mockDatabase.users.find((u: any) => u.email === email && u.password === password);
     if (!user) {
       return { error: "Invalid credentials", data: null };
     }
 
     return { 
       data: { 
-        id: user._id.toString(), 
+        id: user.id, 
         email: user.email, 
         name: user.name 
       }, 
       error: null 
     };
   } catch (error) {
-    console.error('Error validating user in MongoDB:', error);
+    console.error('Error validating user:', error);
     return { error: "Authentication failed", data: null };
   }
 };
@@ -105,20 +66,15 @@ export const validateUser = async (email: string, password: string) => {
 // Group operations
 export const createGroup = async (groupData: any) => {
   try {
-    const mongoClient = await connectToMongoDB();
-    if (!mongoClient) return null;
-
-    const db = mongoClient.db("marketplace");
-    const groupsCollection = db.collection("groups");
-
     const newGroup = {
       ...groupData,
+      id: Math.random().toString(36).substr(2, 9),
       createdAt: new Date(),
       memberCount: 1,
     };
 
-    const result = await groupsCollection.insertOne(newGroup);
-    return result.insertedId.toString();
+    mockDatabase.groups.push(newGroup);
+    return newGroup.id;
   } catch (error) {
     console.error('Error creating group:', error);
     return null;
@@ -127,16 +83,8 @@ export const createGroup = async (groupData: any) => {
 
 export const getGroups = async () => {
   try {
-    const mongoClient = await connectToMongoDB();
-    if (!mongoClient) return [];
-
-    const db = mongoClient.db("marketplace");
-    const groupsCollection = db.collection("groups");
-
-    const groups = await groupsCollection.find({}).toArray();
-    return groups.map(group => ({
+    return mockDatabase.groups.map((group: any) => ({
       ...group,
-      id: group._id.toString(),
     }));
   } catch (error) {
     console.error('Error fetching groups:', error);
@@ -146,18 +94,14 @@ export const getGroups = async () => {
 
 export const joinGroup = async (groupId: string, userId: string) => {
   try {
-    const mongoClient = await connectToMongoDB();
-    if (!mongoClient) return false;
-
-    const db = mongoClient.db("marketplace");
-    const membershipsCollection = db.collection("groupMemberships");
-
     // Check if already a member
-    const existingMembership = await membershipsCollection.findOne({ groupId, userId });
+    const existingMembership = mockDatabase.groupMemberships.find(
+      (m: any) => m.groupId === groupId && m.userId === userId
+    );
     if (existingMembership) return true;
 
     // Add membership
-    await membershipsCollection.insertOne({
+    mockDatabase.groupMemberships.push({
       groupId,
       userId,
       joinedAt: new Date(),
@@ -165,11 +109,10 @@ export const joinGroup = async (groupId: string, userId: string) => {
     });
 
     // Update member count
-    const groupsCollection = db.collection("groups");
-    await groupsCollection.updateOne(
-      { _id: groupId },
-      { $inc: { memberCount: 1 } }
-    );
+    const group = mockDatabase.groups.find((g: any) => g.id === groupId);
+    if (group) {
+      group.memberCount++;
+    }
 
     return true;
   } catch (error) {
