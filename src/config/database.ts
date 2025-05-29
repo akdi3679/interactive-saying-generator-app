@@ -10,7 +10,7 @@ export const DATABASE_CONFIG = {
   mongodb: {
     // Add your MongoDB connection string here
     // Example: "mongodb+srv://username:password@cluster.mongodb.net/dbname"
-    uri: process.env.MONGODB_URI || "mongodb+srv://your-username:your-password@your-cluster.mongodb.net/marketplace-db?retryWrites=true&w=majority",
+    uri: import.meta.env.VITE_MONGODB_URI || "mongodb+srv://your-username:your-password@your-cluster.mongodb.net/marketplace-db?retryWrites=true&w=majority",
   },
   
   // Supabase Configuration (if using Supabase - recommended)
