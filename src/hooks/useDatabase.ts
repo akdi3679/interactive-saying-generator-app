@@ -1,21 +1,16 @@
 
 import { useAuth as useSupabaseAuth } from '../context/AuthContext';
-import { useMongoAuth } from '../services/MongoAuthService';
+import { useAuth as useMongoAuth } from '../context/MongoAuthContext';
 import { DATABASE_CONFIG } from '../config/database';
 
 export const useDatabase = () => {
-  const supabaseAuth = useSupabaseAuth();
-  const mongoAuth = useMongoAuth();
-
-  if (DATABASE_CONFIG.provider === 'supabase') {
-    return supabaseAuth;
-  } else {
+  if (DATABASE_CONFIG.provider === 'mongodb') {
+    const mongoAuth = useMongoAuth();
     return {
       ...mongoAuth,
-      user: null, // MongoDB auth would need session management
-      loading: false,
-      session: null,
-      getProfile: async () => null,
+      session: mongoAuth.user ? { user: mongoAuth.user } : null,
     };
+  } else {
+    return useSupabaseAuth();
   }
 };

@@ -3,36 +3,14 @@ import React, { createContext, useContext, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { createUser, validateUser } from '../lib/mongodb';
 
-type User = {
-  id: string;
-  email: string;
-  name: string;
-};
+const MongoAuthContext = createContext(undefined);
 
-type MongoAuthContextType = {
-  user: User | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<{
-    error: any | null;
-    data: any | null;
-  }>;
-  signUp: (email: string, password: string, name: string) => Promise<{
-    error: any | null;
-    data: any | null;
-  }>;
-  signOut: () => Promise<void>;
-  getProfile: () => Promise<any>;
-  session: any;
-};
-
-const MongoAuthContext = createContext<MongoAuthContextType | undefined>(undefined);
-
-export const MongoAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const MongoAuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email, password) => {
     setLoading(true);
     const { data, error } = await validateUser(email, password);
 
@@ -56,7 +34,7 @@ export const MongoAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return { data, error: null };
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email, password, name) => {
     setLoading(true);
     const { data, error } = await createUser(email, password, name);
 
