@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,7 +29,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { GroupService } from '@/services/GroupService';
-import { useAuth } from '@/context/AuthContext';
+import { useDatabase } from '@/hooks/useDatabase';
 import { Plus } from 'lucide-react';
 
 const createGroupSchema = z.object({
@@ -49,7 +48,7 @@ interface CreateGroupDialogProps {
 export const CreateGroupDialog = ({ onGroupCreated }: CreateGroupDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useDatabase();
 
   const form = useForm<CreateGroupFormValues>({
     resolver: zodResolver(createGroupSchema),
