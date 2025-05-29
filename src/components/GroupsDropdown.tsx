@@ -13,14 +13,14 @@ import { Badge } from '@/components/ui/badge';
 import { CreateGroupDialog } from '@/components/groups/CreateGroupDialog';
 import { GroupService } from '@/services/GroupService';
 import { Group } from '@/models/group.types';
-import { useAuth } from '@/context/AuthContext';
+import { useDatabase } from '@/hooks/useDatabase';
 import { Users, Plus, Eye } from 'lucide-react';
 
 const GroupsDropdown = () => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [userGroups, setUserGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user } = useDatabase();
   const navigate = useNavigate();
 
   useEffect(() => {
