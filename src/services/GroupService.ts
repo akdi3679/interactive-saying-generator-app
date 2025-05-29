@@ -1,9 +1,8 @@
 
-import { Group, GroupMembership } from '../models/group.types';
 import { createGroup as mongoCreateGroup, getGroups as mongoGetGroups, joinGroup as mongoJoinGroup } from '../lib/mongodb';
 
 export const GroupService = {
-  async createGroup(groupData: Omit<Group, 'id' | 'createdAt' | 'memberCount'>): Promise<string | null> {
+  async createGroup(groupData) {
     try {
       const groupId = await mongoCreateGroup(groupData);
       if (groupId) {
@@ -17,28 +16,27 @@ export const GroupService = {
     }
   },
 
-  async getGroups(): Promise<Group[]> {
+  async getGroups() {
     try {
       const groups = await mongoGetGroups();
-      return groups as Group[];
+      return groups;
     } catch (error) {
       console.error('Error fetching groups:', error);
       return [];
     }
   },
 
-  async getGroupById(groupId: string): Promise<Group | null> {
+  async getGroupById(groupId) {
     try {
       const groups = await mongoGetGroups();
-      const typedGroups = groups as Group[];
-      return typedGroups.find((group: Group) => group.id === groupId) || null;
+      return groups.find((group) => group.id === groupId) || null;
     } catch (error) {
       console.error('Error fetching group:', error);
       return null;
     }
   },
 
-  async joinGroup(groupId: string, userId: string): Promise<boolean> {
+  async joinGroup(groupId, userId) {
     try {
       return await mongoJoinGroup(groupId, userId);
     } catch (error) {
@@ -47,7 +45,7 @@ export const GroupService = {
     }
   },
 
-  async getUserGroups(userId: string): Promise<Group[]> {
+  async getUserGroups(userId) {
     try {
       // This would need to be implemented in MongoDB
       // For now, return empty array
@@ -58,7 +56,7 @@ export const GroupService = {
     }
   },
 
-  async isUserMember(groupId: string, userId: string): Promise<boolean> {
+  async isUserMember(groupId, userId) {
     try {
       // This would need to be implemented in MongoDB
       // For now, return false
@@ -69,11 +67,10 @@ export const GroupService = {
     }
   },
 
-  async initializeDefaultGroups(): Promise<void> {
+  async initializeDefaultGroups() {
     try {
       const groups = await mongoGetGroups();
-      const typedGroups = groups as Group[];
-      const hasTopSale = typedGroups.some((g: Group) => g.name === 'Top Sale');
+      const hasTopSale = groups.some((g) => g.name === 'Top Sale');
       
       if (!hasTopSale) {
         await this.createGroup({

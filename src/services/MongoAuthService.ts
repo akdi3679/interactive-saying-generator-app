@@ -5,7 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 export const useMongoAuth = () => {
   const { toast } = useToast();
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email, password, name) => {
     const { data, error } = await createUser(email, password, name);
 
     if (error) {
@@ -25,7 +25,7 @@ export const useMongoAuth = () => {
     return { data, error: null };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email, password) => {
     const { data, error } = await validateUser(email, password);
 
     if (error) {

@@ -5,11 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
-interface LocationSelectorProps {
-  onLocationChange: (location: { lat: number; lng: number; address: string; range: number }) => void;
-}
-
-const LocationSelector = ({ onLocationChange }: LocationSelectorProps) => {
+const LocationSelector = ({ onLocationChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState({
@@ -18,7 +14,7 @@ const LocationSelector = ({ onLocationChange }: LocationSelectorProps) => {
     address: 'New York, NY, USA'
   });
   const [range, setRange] = useState(25);
-  const mapRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef(null);
 
   const mockLocations = [
     { address: 'New York, NY, USA', lat: 40.7128, lng: -74.0060 },
@@ -32,12 +28,12 @@ const LocationSelector = ({ onLocationChange }: LocationSelectorProps) => {
     loc.address.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleLocationSelect = (location: typeof selectedLocation) => {
+  const handleLocationSelect = (location) => {
     setSelectedLocation(location);
     onLocationChange({ ...location, range });
   };
 
-  const handleRangeChange = (newRange: number) => {
+  const handleRangeChange = (newRange) => {
     setRange(newRange);
     onLocationChange({ ...selectedLocation, range: newRange });
   };

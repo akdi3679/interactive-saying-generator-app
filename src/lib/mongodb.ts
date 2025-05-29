@@ -4,7 +4,7 @@ import { DATABASE_CONFIG } from '../config/database';
 // Mock MongoDB implementation for browser compatibility
 // In a real application, this would be handled server-side
 
-let mockDatabase: any = {
+let mockDatabase = {
   users: [],
   groups: [],
   groupMemberships: []
@@ -16,10 +16,10 @@ export const connectToMongoDB = async () => {
   return { connected: true };
 };
 
-export const createUser = async (email: string, password: string, name: string) => {
+export const createUser = async (email, password, name) => {
   try {
     // Check if user already exists
-    const existingUser = mockDatabase.users.find((user: any) => user.email === email);
+    const existingUser = mockDatabase.users.find((user) => user.email === email);
     if (existingUser) {
       return { error: "User with this email already exists", data: null };
     }
@@ -41,10 +41,10 @@ export const createUser = async (email: string, password: string, name: string) 
   }
 };
 
-export const validateUser = async (email: string, password: string) => {
+export const validateUser = async (email, password) => {
   try {
     // Find user by email and password
-    const user = mockDatabase.users.find((u: any) => u.email === email && u.password === password);
+    const user = mockDatabase.users.find((u) => u.email === email && u.password === password);
     if (!user) {
       return { error: "Invalid credentials", data: null };
     }
@@ -64,7 +64,7 @@ export const validateUser = async (email: string, password: string) => {
 };
 
 // Group operations
-export const createGroup = async (groupData: any) => {
+export const createGroup = async (groupData) => {
   try {
     const newGroup = {
       ...groupData,
@@ -83,7 +83,7 @@ export const createGroup = async (groupData: any) => {
 
 export const getGroups = async () => {
   try {
-    return mockDatabase.groups.map((group: any) => ({
+    return mockDatabase.groups.map((group) => ({
       ...group,
     }));
   } catch (error) {
@@ -92,11 +92,11 @@ export const getGroups = async () => {
   }
 };
 
-export const joinGroup = async (groupId: string, userId: string) => {
+export const joinGroup = async (groupId, userId) => {
   try {
     // Check if already a member
     const existingMembership = mockDatabase.groupMemberships.find(
-      (m: any) => m.groupId === groupId && m.userId === userId
+      (m) => m.groupId === groupId && m.userId === userId
     );
     if (existingMembership) return true;
 
@@ -109,7 +109,7 @@ export const joinGroup = async (groupId: string, userId: string) => {
     });
 
     // Update member count
-    const group = mockDatabase.groups.find((g: any) => g.id === groupId);
+    const group = mockDatabase.groups.find((g) => g.id === groupId);
     if (group) {
       group.memberCount++;
     }
