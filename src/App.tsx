@@ -13,6 +13,7 @@ import Wishlist from "./pages/Wishlist";
 import Groups from "./pages/Groups";
 import GroupDetail from "./pages/GroupDetail";
 import Bidding from "./pages/Bidding";
+import Messages from "./pages/Messages";
 import { MongoAuthProvider } from "./context/MongoAuthContext";
 import { initializeTestData } from "./utils/testData";
 
@@ -37,6 +38,7 @@ const App = () => {
             <Route path="/groups" element={<Groups />} />
             <Route path="/groups/:groupId" element={<GroupDetail />} />
             <Route path="/bidding" element={<Bidding />} />
+            <Route path="/messages" element={<Messages />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -51,6 +51,48 @@ export class ProductService {
     );
   }
 
+  static async createProduct(productData: Partial<Product>): Promise<Product> {
+    try {
+      const products = await this.getProducts();
+      
+      const newProduct: Product = {
+        id: Date.now().toString(),
+        title: productData.title || 'New Product',
+        description: productData.description || '',
+        price: productData.price || 0,
+        category: productData.category || 'Other',
+        images: productData.images || [],
+        seller: productData.seller || {
+          id: 'user1',
+          name: 'Current User',
+          email: 'user@example.com',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1',
+          createdAt: new Date(),
+          rating: 4.5,
+          totalRatings: 10
+        },
+        location: productData.location || 'Unknown',
+        condition: productData.condition || 'Good',
+        createdAt: new Date(),
+        isArchived: false,
+        visibility: productData.visibility || 'public',
+        bidding: productData.bidding,
+        buyNowPrice: productData.buyNowPrice,
+        shipping: productData.shipping,
+        returns: productData.returns,
+        groupId: productData.groupId
+      };
+      
+      products.push(newProduct);
+      localStorage.setItem('testProducts', JSON.stringify(products));
+      
+      return newProduct;
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
+  }
+
   static async placeBid(productId: string, userId: string, amount: number): Promise<boolean> {
     try {
       const products = await this.getProducts();

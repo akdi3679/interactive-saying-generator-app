@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
-import { Bell, Menu, Search, X, MapPin } from 'lucide-react';
+import { Bell, Menu, Search, X, MapPin, MessageSquare } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import AuthButtons, { getAuthState } from './AuthButtons';
 import SellItemButton from './SellItemButton';
@@ -19,6 +19,7 @@ const Navbar = () => {
   });
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -28,6 +29,18 @@ const Navbar = () => {
     setSelectedLocation(location);
     console.log('Location changed:', location);
   };
+
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path === '/') return 'foryou';
+    if (path === '/bidding') return 'bidding';
+    if (path === '/wishlist') return 'saved';
+    if (path === '/groups') return 'groups';
+    if (path === '/messages') return 'messages';
+    return '';
+  };
+
+  const activeTab = getActiveTab();
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-lg bg-white border-b border-gray-200">
@@ -48,17 +61,6 @@ const Navbar = () => {
                 <>
                   <div className="hidden md:flex items-center space-x-3">
                     <SellItemButton />
-                    <a
-                      href="/wishlist"
-                      className="text-gray-700 hover:text-[#3665f3] transition-colors"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/wishlist');
-                        return false;
-                      }}
-                    >
-                      Watchlist
-                    </a>
                     <button className="p-2 rounded-full hover:bg-gray-100">
                       <Bell className="h-5 w-5 text-gray-700" />
                     </button>
@@ -96,18 +98,22 @@ const Navbar = () => {
             </div>
             <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border">
               <MapPin className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-700 max-w-24 truncate">{selectedLocation.address}</span>
+              <span className="text-sm text-gray-700 max-w-20 truncate">{selectedLocation.address.split(',')[0]}</span>
               <span className="text-xs bg-[#3665f3] text-white px-2 py-1 rounded">{selectedLocation.range}mi</span>
             </div>
           </div>
 
-          {/* Third Row - Main Navigation with Background */}
+          {/* Third Row - Main Navigation */}
           <div className="hidden md:flex items-center justify-between">
-            {/* Primary Navigation */}
+            {/* Primary Navigation with Background */}
             <div className="flex items-center space-x-1 bg-[#3665f3]/5 rounded-lg p-1">
               <a
                 href="/"
-                className="px-4 py-2 bg-[#3665f3] text-white rounded-md font-medium transition-colors"
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'foryou' 
+                    ? 'bg-[#3665f3] text-white' 
+                    : 'text-gray-700 hover:bg-white hover:text-[#3665f3]'
+                }`}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate('/');
@@ -118,7 +124,11 @@ const Navbar = () => {
               </a>
               <a
                 href="/bidding"
-                className="px-4 py-2 text-gray-700 hover:bg-white hover:text-[#3665f3] rounded-md transition-colors"
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'bidding' 
+                    ? 'bg-[#3665f3] text-white' 
+                    : 'text-gray-700 hover:bg-white hover:text-[#3665f3]'
+                }`}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate('/bidding');
@@ -129,7 +139,11 @@ const Navbar = () => {
               </a>
               <a
                 href="/wishlist"
-                className="px-4 py-2 text-gray-700 hover:bg-white hover:text-[#3665f3] rounded-md transition-colors"
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'saved' 
+                    ? 'bg-[#3665f3] text-white' 
+                    : 'text-gray-700 hover:bg-white hover:text-[#3665f3]'
+                }`}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate('/wishlist');
@@ -140,7 +154,11 @@ const Navbar = () => {
               </a>
               <a
                 href="/groups"
-                className="px-4 py-2 text-gray-700 hover:bg-white hover:text-[#3665f3] rounded-md transition-colors"
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'groups' 
+                    ? 'bg-[#3665f3] text-white' 
+                    : 'text-gray-700 hover:bg-white hover:text-[#3665f3]'
+                }`}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate('/groups');
@@ -149,10 +167,26 @@ const Navbar = () => {
               >
                 Groups
               </a>
+              <a
+                href="/messages"
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'messages' 
+                    ? 'bg-[#3665f3] text-white' 
+                    : 'text-gray-700 hover:bg-white hover:text-[#3665f3]'
+                } flex items-center gap-2`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/messages');
+                  return false;
+                }}
+              >
+                <MessageSquare className="h-4 w-4" />
+                Messages
+              </a>
             </div>
 
-            {/* Categories */}
-            <div className="flex items-center space-x-4 text-sm">
+            {/* Categories - Closer to main navigation */}
+            <div className="flex items-center space-x-4 text-sm ml-6">
               <a
                 href="/search?category=Electronics"
                 className="text-gray-600 hover:text-[#3665f3] transition-colors"
@@ -226,12 +260,12 @@ const Navbar = () => {
                   </li>
                 )}
                 <li>
-                  <a href="/" className="block py-2 text-[#3665f3] font-medium">
+                  <a href="/" className={`block py-2 font-medium ${activeTab === 'foryou' ? 'text-[#3665f3]' : 'text-gray-700'}`}>
                     For You
                   </a>
                 </li>
                 <li>
-                  <a href="/bidding" className="block py-2 text-gray-700" onClick={(e) => {
+                  <a href="/bidding" className={`block py-2 ${activeTab === 'bidding' ? 'text-[#3665f3] font-medium' : 'text-gray-700'}`} onClick={(e) => {
                     e.preventDefault();
                     navigate('/bidding');
                     setIsMenuOpen(false);
@@ -241,7 +275,7 @@ const Navbar = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="/groups" className="block py-2 text-gray-700" onClick={(e) => {
+                  <a href="/groups" className={`block py-2 ${activeTab === 'groups' ? 'text-[#3665f3] font-medium' : 'text-gray-700'}`} onClick={(e) => {
                     e.preventDefault();
                     navigate('/groups');
                     setIsMenuOpen(false);
@@ -251,13 +285,24 @@ const Navbar = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="/wishlist" className="block py-2 text-gray-700" onClick={(e) => {
+                  <a href="/wishlist" className={`block py-2 ${activeTab === 'saved' ? 'text-[#3665f3] font-medium' : 'text-gray-700'}`} onClick={(e) => {
                     e.preventDefault();
                     navigate('/wishlist');
                     setIsMenuOpen(false);
                     return false;
                   }}>
                     Saved
+                  </a>
+                </li>
+                <li>
+                  <a href="/messages" className={`block py-2 ${activeTab === 'messages' ? 'text-[#3665f3] font-medium' : 'text-gray-700'} flex items-center gap-2`} onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/messages');
+                    setIsMenuOpen(false);
+                    return false;
+                  }}>
+                    <MessageSquare className="h-4 w-4" />
+                    Messages
                   </a>
                 </li>
                 {currentUser && (

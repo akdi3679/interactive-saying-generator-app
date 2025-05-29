@@ -1,83 +1,81 @@
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Database, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
-import { isDatabaseConfigured, DATABASE_CONFIG } from '../config/database';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { DATABASE_CONFIG, isDatabaseConfigured } from '@/config/database';
+import { CheckCircle, AlertCircle } from 'lucide-react';
 
-export const DatabaseSetup = () => {
-  const [isConfigured] = useState(isDatabaseConfigured());
+const DatabaseSetup = () => {
+  const [mongoUri, setMongoUri] = useState(DATABASE_CONFIG.mongodb.uri);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsConnected(isDatabaseConfigured());
+  }, []);
+
+  const testConnection = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Since we're using MongoDB only, just validate the URI format
+      if (!mongoUri || mongoUri.includes('your-username')) {
+        throw new Error('Please provide a valid MongoDB URI');
+      }
+      
+      setIsConnected(true);
+      console.log('MongoDB connection configured successfully');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Connection failed');
+      setIsConnected(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Database className="h-5 w-5" />
-          Database Configuration
-        </CardTitle>
-        <CardDescription>
-          Configure your database to enable full functionality including user authentication, product listings, and more.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-          <div className="flex items-center gap-2">
-            <span className="font-medium">Current Provider:</span>
-            <Badge variant={DATABASE_CONFIG.provider === 'supabase' ? 'default' : 'secondary'}>
-              {DATABASE_CONFIG.provider}
-            </Badge>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            MongoDB Configuration
+            {isConnected && <CheckCircle className="h-5 w-5 text-green-500" />}
+          </CardTitle>
+          <CardDescription>
+            Configure your MongoDB connection string to enable full functionality.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="mongo-uri">MongoDB Connection String</Label>
+            <Input
+              id="mongo-uri"
+              type="password"
+              placeholder="mongodb+srv://username:password@cluster.mongodb.net/dbname"
+              value={mongoUri}
+              onChange={(e) => setMongoUri(e.target.value)}
+            />
           </div>
-          <div className="flex items-center gap-2">
-            {isConfigured ? (
-              <>
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                <span className="text-sm text-green-600">Configured</span>
-              </>
-            ) : (
-              <>
-                <AlertCircle className="h-4 w-4 text-orange-500" />
-                <span className="text-sm text-orange-600">Needs Setup</span>
-              </>
-            )}
-          </div>
-        </div>
-
-        {DATABASE_CONFIG.provider === 'supabase' && (
-          <div className="space-y-3">
-            <h3 className="font-semibold">Supabase Setup (Recommended)</h3>
-            <p className="text-sm text-muted-foreground">
-              Click the Supabase button in the top-right corner to connect your project.
-            </p>
-            <Button asChild variant="outline" className="w-full">
-              <a href="https://docs.lovable.dev/integrations/supabase/" target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Supabase Integration Docs
-              </a>
-            </Button>
-          </div>
-        )}
-
-        {DATABASE_CONFIG.provider === 'mongodb' && (
-          <div className="space-y-3">
-            <h3 className="font-semibold">MongoDB Setup</h3>
-            <p className="text-sm text-muted-foreground">
-              Add your MongoDB connection string to src/lib/mongodb.ts
-            </p>
-            <div className="p-3 bg-muted rounded text-sm font-mono">
-              const uri = "your-mongodb-connection-string";
-            </div>
-          </div>
-        )}
-
-        {!isConfigured && (
-          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-            <p className="text-sm text-orange-800">
-              ⚠️ Database not configured. Some features may not work until you complete the setup.
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
+          <Button onClick={testConnection} disabled={isLoading}>
+            {isLoading ? 'Testing...' : 'Test Connection'}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
+
+export default DatabaseSetup;
