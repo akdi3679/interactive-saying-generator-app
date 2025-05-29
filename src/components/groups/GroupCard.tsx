@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GroupService } from '@/services/GroupService';
-import { useAuth } from '@/context/AuthContext';
+import { useDatabase } from '@/hooks/useDatabase';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { Users } from 'lucide-react';
@@ -17,7 +17,7 @@ interface GroupCardProps {
 export const GroupCard = ({ group, onJoin }: GroupCardProps) => {
   const [isMember, setIsMember] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
-  const { user } = useAuth();
+  const { user } = useDatabase();
   const { toast } = useToast();
 
   useEffect(() => {
