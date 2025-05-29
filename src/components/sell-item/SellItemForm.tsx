@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ProductService } from '@/services/ProductService';
 import { DialogFooter } from '@/components/ui/dialog';
 import { ProductCategory } from '@/models/types';
-import { useAuth } from '@/context/AuthContext';
+import { useDatabase } from '@/hooks/useDatabase';
 import { ImageUpload } from './ImageUpload';
 import { GroupService } from '@/services/GroupService';
 import { Group } from '@/models/group.types';
@@ -41,7 +42,7 @@ interface SellItemFormProps {
 
 export const SellItemForm = ({ onSuccess, initialGroupId }: SellItemFormProps) => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useDatabase();
   const [images, setImages] = useState<string[]>([]);
   const [userGroups, setUserGroups] = useState<Group[]>([]);
 
