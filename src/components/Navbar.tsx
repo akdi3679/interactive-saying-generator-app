@@ -7,16 +7,30 @@ import SearchBar from './SearchBar';
 import AuthButtons, { getAuthState } from './AuthButtons';
 import SellItemButton from './SellItemButton';
 import GroupsDropdown from './GroupsDropdown';
+import BiddingButton from './BiddingButton';
+import LocationSelector from './LocationSelector';
 
 const Navbar = () => {
   const auth = getAuthState();
   const currentUser = auth.isLoggedIn ? auth.user : null;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState({
+    lat: 40.7128,
+    lng: -74.0060,
+    address: 'New York, NY, USA',
+    range: 25
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLocationChange = (location: typeof selectedLocation) => {
+    setSelectedLocation(location);
+    // Here you would filter products based on location
+    console.log('Location changed:', location);
   };
 
   return (
@@ -38,6 +52,7 @@ const Navbar = () => {
                 <>
                   <div className="hidden md:flex items-center space-x-3">
                     <SellItemButton />
+                    <BiddingButton />
                     <GroupsDropdown />
                     <a
                       href="/wishlist"
@@ -65,6 +80,7 @@ const Navbar = () => {
               ) : (
                 <div className="hidden md:flex items-center space-x-3">
                   <AuthButtons />
+                  <BiddingButton />
                   <GroupsDropdown />
                   <SellItemButton />
                 </div>
@@ -81,25 +97,26 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Second Row - Search */}
-          <div className="flex items-center">
-            <div className="w-full">
+          {/* Second Row - Search and Location */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
               <SearchBar />
             </div>
+            <LocationSelector onLocationChange={handleLocationChange} />
           </div>
 
-          {/* Third Row - Categories */}
+          {/* Third Row - Categories with For You as default */}
           <div className="hidden md:flex items-center space-x-6 text-sm pt-1 overflow-x-auto">
             <a
               href="/"
-              className="text-gray-700 hover:text-[#3665f3] transition-colors whitespace-nowrap"
+              className="text-[#3665f3] font-medium border-b-2 border-[#3665f3] pb-1 transition-colors whitespace-nowrap"
               onClick={(e) => {
                 e.preventDefault();
                 navigate('/');
                 return false;
               }}
             >
-              Home
+              For You
             </a>
             <a
               href="/groups"
@@ -213,12 +230,13 @@ const Navbar = () => {
                     <div className="flex flex-col space-y-2">
                       <AuthButtons />
                       <SellItemButton />
+                      <BiddingButton />
                     </div>
                   </li>
                 )}
                 <li>
-                  <a href="/" className="block py-2 text-gray-700">
-                    Home
+                  <a href="/" className="block py-2 text-[#3665f3] font-medium">
+                    For You
                   </a>
                 </li>
                 <li>
@@ -241,30 +259,15 @@ const Navbar = () => {
                     Watchlist
                   </a>
                 </li>
-                <li>
-                  <a href="/search?category=Electronics" className="block py-2 text-gray-700" onClick={(e) => {
-                    e.preventDefault();
-                    navigate('/search?category=Electronics');
-                    setIsMenuOpen(false);
-                    return false;
-                  }}>
-                    Electronics
-                  </a>
-                </li>
-                <li>
-                  <a href="/search?category=Fashion" className="block py-2 text-gray-700" onClick={(e) => {
-                    e.preventDefault();
-                    navigate('/search?category=Fashion');
-                    setIsMenuOpen(false);
-                    return false;
-                  }}>
-                    Fashion
-                  </a>
-                </li>
                 {currentUser && (
-                  <li>
-                    <SellItemButton />
-                  </li>
+                  <>
+                    <li>
+                      <SellItemButton />
+                    </li>
+                    <li>
+                      <BiddingButton />
+                    </li>
+                  </>
                 )}
               </ul>
             </nav>

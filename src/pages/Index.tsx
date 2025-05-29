@@ -1,6 +1,6 @@
-
 import Navbar from '../components/Navbar';
 import CategorySelector from '../components/CategorySelector';
+import ForYouSection from '../components/ForYouSection';
 import FeaturedProducts from '../components/FeaturedProducts';
 import Footer from '../components/Footer';
 import { ArrowRight, Search, ShoppingBag, Zap, Shield, Heart, Tag, Bell } from 'lucide-react';
@@ -42,8 +42,15 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Daily Deals */}
+        {/* For You Section - Primary */}
         <section className="py-8 bg-white">
+          <div className="container mx-auto px-4">
+            <ForYouSection />
+          </div>
+        </section>
+        
+        {/* Daily Deals */}
+        <section className="py-8 bg-[#F8F8F8]">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Daily Deals</h2>
@@ -80,7 +87,7 @@ const Index = () => {
         </section>
         
         {/* Browse Categories */}
-        <section className="py-8 bg-[#F8F8F8]">
+        <section className="py-8 bg-white">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Shop by Category</h2>
@@ -94,19 +101,19 @@ const Index = () => {
         </section>
         
         {/* Featured Products */}
-        <section className="py-8 bg-white">
+        <section className="py-8 bg-[#F8F8F8]">
           <div className="container mx-auto px-4">
             <FeaturedProducts />
           </div>
         </section>
         
         {/* eBay Benefits */}
-        <section className="py-12 bg-[#F8F8F8]">
+        <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-bold text-center mb-10">Why eBay Clone?</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+              <div className="bg-white p-6 rounded-lg shadow-sm text-center border">
                 <div className="mx-auto bg-[#3665f3]/10 rounded-full p-4 w-16 h-16 mb-4 flex items-center justify-center">
                   <Tag className="h-8 w-8 text-[#3665f3]" />
                 </div>
@@ -114,7 +121,7 @@ const Index = () => {
                 <p className="text-gray-600">Find amazing prices on the brands you love.</p>
               </div>
               
-              <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+              <div className="bg-white p-6 rounded-lg shadow-sm text-center border">
                 <div className="mx-auto bg-[#3665f3]/10 rounded-full p-4 w-16 h-16 mb-4 flex items-center justify-center">
                   <Shield className="h-8 w-8 text-[#3665f3]" />
                 </div>
@@ -122,7 +129,7 @@ const Index = () => {
                 <p className="text-gray-600">Shop confidently with our money back guarantee.</p>
               </div>
               
-              <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+              <div className="bg-white p-6 rounded-lg shadow-sm text-center border">
                 <div className="mx-auto bg-[#3665f3]/10 rounded-full p-4 w-16 h-16 mb-4 flex items-center justify-center">
                   <Zap className="h-8 w-8 text-[#3665f3]" />
                 </div>
