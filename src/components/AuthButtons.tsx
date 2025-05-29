@@ -19,11 +19,11 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { User } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useDatabase } from '../hooks/useDatabase';
 
 // Export the getAuthState function so it can be imported elsewhere
 export const getAuthState = () => {
-  const { user, loading } = useAuth();
+  const { user, loading } = useDatabase();
   
   return {
     isLoggedIn: !!user,
@@ -46,9 +46,9 @@ export const AuthButtons = () => {
   const [name, setName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
-  const { user, signIn, signUp, signOut } = useAuth();
+  const { user, signIn, signUp, signOut } = useDatabase();
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     
     if (!email || !password) {
@@ -69,7 +69,7 @@ export const AuthButtons = () => {
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     
     if (!email || !password || !name) {
