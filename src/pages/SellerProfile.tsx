@@ -1,25 +1,45 @@
 
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
-import { mockUsers, mockProducts } from '../utils/mockData';
-import { Mail, MessageSquare, Star, User } from 'lucide-react';
+import StarRating from '../components/StarRating';
+import { testUsers } from '../utils/testData';
+import { ProductService } from '../services/ProductService';
+import { Mail, MessageSquare, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Product } from '../models/types';
 
 const SellerProfile = () => {
   const { sellerId } = useParams();
   const { toast } = useToast();
   const [message, setMessage] = useState('');
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
+  const [sellerProducts, setSellerProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  const seller = mockUsers.find(user => user.id === sellerId);
-  const sellerProducts = mockProducts.filter(product => product.seller.id === sellerId);
+  const seller = testUsers.find(user => user.id === sellerId);
+  
+  useEffect(() => {
+    const fetchSellerProducts = async () => {
+      try {
+        const allProducts = await ProductService.getProducts();
+        const products = allProducts.filter(product => product.seller.id === sellerId);
+        setSellerProducts(products);
+      } catch (error) {
+        console.error('Error fetching seller products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSellerProducts();
+  }, [sellerId]);
   
   const activeProducts = sellerProducts.filter(p => !p.isArchived);
   const archivedProducts = sellerProducts.filter(p => p.isArchived);
@@ -70,18 +90,22 @@ const SellerProfile = () => {
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-2xl font-bold mb-2">{seller.name}</h1>
               
-              <div className="flex flex-col md:flex-row items-center gap-2 mb-4">
+              <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
                 <div className="flex items-center">
                   <User className="h-4 w-4 mr-1 text-gray-500" />
                   <span className="text-sm text-gray-500">
-                    Member since {new Date(seller.createdAt).toLocaleDateString()}
+                    Member since {new Date(seller.createdAt).getFullYear()}
                   </span>
                 </div>
-                <div className="hidden md:block text-gray-300 mx-1">|</div>
-                <div className="flex items-center">
-                  <Star className="h-4 w-4 mr-1 text-yellow-500" />
-                  <span className="text-sm">Top Rated Seller</span>
-                </div>
+                {seller.rating && (
+                  <div className="flex items-center">
+                    <StarRating 
+                      rating={seller.rating} 
+                      totalRatings={seller.totalRatings}
+                      size="sm"
+                    />
+                  </div>
+                )}
               </div>
               
               <p className="text-gray-600 mb-6">
@@ -138,7 +162,11 @@ const SellerProfile = () => {
             </TabsList>
             
             <TabsContent value="active" className="mt-6">
-              {activeProducts.length === 0 ? (
+              {loading ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">Loading products...</p>
+                </div>
+              ) : activeProducts.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-gray-500">This seller has no active listings.</p>
                 </div>

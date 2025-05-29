@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -5,7 +6,6 @@ import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
 import { Product } from '../models/types';
 import { useDatabase } from '../hooks/useDatabase';
-import { supabase } from '../lib/supabase';
 import { ProductService } from '../services/ProductService';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,29 +26,20 @@ const Wishlist = () => {
       }
       
       try {
-        // Get all wishlist entries for the current user
-        const { data: wishlistData, error } = await supabase
-          .from('wishlists')
-          .select('product_id')
-          .eq('user_id', user.id);
-          
-        if (error) throw error;
+        // Get wishlist from localStorage (MongoDB version)
+        const wishlist = JSON.parse(localStorage.getItem(`wishlist_${user.id}`) || '[]');
         
-        if (wishlistData.length === 0) {
+        if (wishlist.length === 0) {
           setWishlistProducts([]);
           setLoading(false);
           return;
         }
         
-        // Extract product IDs
-        const productIds = wishlistData.map(item => item.product_id);
-        
         // Fetch product details for each ID
-        const productPromises = productIds.map(id => ProductService.getProductById(id));
-        const products = await Promise.all(productPromises);
+        const allProducts = await ProductService.getProducts();
+        const wishlistProducts = allProducts.filter(product => wishlist.includes(product.id));
         
-        // Filter out null values (in case a product was deleted)
-        setWishlistProducts(products.filter(p => p !== null) as Product[]);
+        setWishlistProducts(wishlistProducts);
       } catch (error) {
         console.error('Error fetching wishlist:', error);
       } finally {

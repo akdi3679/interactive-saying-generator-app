@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -5,6 +6,8 @@ export interface User {
   avatar: string;
   createdAt: Date;
   isGuest?: boolean;
+  rating?: number;
+  totalRatings?: number;
 }
 
 export interface Product {
@@ -37,6 +40,24 @@ export interface Product {
   };
   groupId?: string;
   visibility: 'public' | 'group-only';
+}
+
+export interface Bid {
+  id: string;
+  productId: string;
+  userId: string;
+  amount: number;
+  timestamp: Date;
+}
+
+export interface Message {
+  id: string;
+  fromUserId: string;
+  toUserId: string;
+  content: string;
+  timestamp: Date;
+  productId?: string;
+  isRead: boolean;
 }
 
 export type ProductCategory = 

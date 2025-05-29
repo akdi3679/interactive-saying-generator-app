@@ -1,14 +1,11 @@
 
 import { useState } from 'react';
-import { Bell, Menu, Search, X } from 'lucide-react';
+import { Bell, Menu, Search, X, MapPin } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import AuthButtons, { getAuthState } from './AuthButtons';
 import SellItemButton from './SellItemButton';
-import GroupsDropdown from './GroupsDropdown';
-import BiddingButton from './BiddingButton';
-import LocationSelector from './LocationSelector';
 
 const Navbar = () => {
   const auth = getAuthState();
@@ -17,7 +14,7 @@ const Navbar = () => {
   const [selectedLocation, setSelectedLocation] = useState({
     lat: 40.7128,
     lng: -74.0060,
-    address: 'New York, NY, USA',
+    address: 'New York, NY',
     range: 25
   });
   const { toast } = useToast();
@@ -29,7 +26,6 @@ const Navbar = () => {
 
   const handleLocationChange = (location: typeof selectedLocation) => {
     setSelectedLocation(location);
-    // Here you would filter products based on location
     console.log('Location changed:', location);
   };
 
@@ -52,8 +48,6 @@ const Navbar = () => {
                 <>
                   <div className="hidden md:flex items-center space-x-3">
                     <SellItemButton />
-                    <BiddingButton />
-                    <GroupsDropdown />
                     <a
                       href="/wishlist"
                       className="text-gray-700 hover:text-[#3665f3] transition-colors"
@@ -80,8 +74,6 @@ const Navbar = () => {
               ) : (
                 <div className="hidden md:flex items-center space-x-3">
                   <AuthButtons />
-                  <BiddingButton />
-                  <GroupsDropdown />
                   <SellItemButton />
                 </div>
               )}
@@ -102,121 +94,121 @@ const Navbar = () => {
             <div className="flex-1">
               <SearchBar />
             </div>
-            <LocationSelector onLocationChange={handleLocationChange} />
+            <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border">
+              <MapPin className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-700 max-w-24 truncate">{selectedLocation.address}</span>
+              <span className="text-xs bg-[#3665f3] text-white px-2 py-1 rounded">{selectedLocation.range}mi</span>
+            </div>
           </div>
 
-          {/* Third Row - Categories with For You as default */}
-          <div className="hidden md:flex items-center space-x-6 text-sm pt-1 overflow-x-auto">
-            <a
-              href="/"
-              className="text-[#3665f3] font-medium border-b-2 border-[#3665f3] pb-1 transition-colors whitespace-nowrap"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/');
-                return false;
-              }}
-            >
-              For You
-            </a>
-            <a
-              href="/groups"
-              className="text-gray-700 hover:text-[#3665f3] transition-colors whitespace-nowrap"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/groups');
-                return false;
-              }}
-            >
-              Groups
-            </a>
-            <a
-              href="/wishlist"
-              className="text-gray-700 hover:text-[#3665f3] transition-colors whitespace-nowrap"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/wishlist');
-                return false;
-              }}
-            >
-              Saved
-            </a>
-            <a
-              href="/search?category=Electronics"
-              className="text-gray-700 hover:text-[#3665f3] transition-colors whitespace-nowrap"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/search?category=Electronics');
-                return false;
-              }}
-            >
-              Electronics
-            </a>
-            <a
-              href="/search?category=Fashion"
-              className="text-gray-700 hover:text-[#3665f3] transition-colors whitespace-nowrap"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/search?category=Fashion');
-                return false;
-              }}
-            >
-              Fashion
-            </a>
-            <a
-              href="/search?category=Household"
-              className="text-gray-700 hover:text-[#3665f3] transition-colors whitespace-nowrap"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/search?category=Household');
-                return false;
-              }}
-            >
-              Home & Garden
-            </a>
-            <a
-              href="/search?category=Sports"
-              className="text-gray-700 hover:text-[#3665f3] transition-colors whitespace-nowrap"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/search?category=Sports');
-                return false;
-              }}
-            >
-              Sports
-            </a>
-            <a
-              href="/search?category=Collectibles"
-              className="text-gray-700 hover:text-[#3665f3] transition-colors whitespace-nowrap"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/search?category=Collectibles');
-                return false;
-              }}
-            >
-              Collectibles
-            </a>
-            <a
-              href="/search?category=Business & Industrial"
-              className="text-gray-700 hover:text-[#3665f3] transition-colors whitespace-nowrap"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/search?category=Business & Industrial');
-                return false;
-              }}
-            >
-              Industrial
-            </a>
-            <a
-              href="/search?category=Vehicles"
-              className="text-gray-700 hover:text-[#3665f3] transition-colors whitespace-nowrap"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/search?category=Vehicles');
-                return false;
-              }}
-            >
-              Motors
-            </a>
+          {/* Third Row - Main Navigation with Background */}
+          <div className="hidden md:flex items-center justify-between">
+            {/* Primary Navigation */}
+            <div className="flex items-center space-x-1 bg-[#3665f3]/5 rounded-lg p-1">
+              <a
+                href="/"
+                className="px-4 py-2 bg-[#3665f3] text-white rounded-md font-medium transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/');
+                  return false;
+                }}
+              >
+                For You
+              </a>
+              <a
+                href="/bidding"
+                className="px-4 py-2 text-gray-700 hover:bg-white hover:text-[#3665f3] rounded-md transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/bidding');
+                  return false;
+                }}
+              >
+                Bidding
+              </a>
+              <a
+                href="/wishlist"
+                className="px-4 py-2 text-gray-700 hover:bg-white hover:text-[#3665f3] rounded-md transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/wishlist');
+                  return false;
+                }}
+              >
+                Saved
+              </a>
+              <a
+                href="/groups"
+                className="px-4 py-2 text-gray-700 hover:bg-white hover:text-[#3665f3] rounded-md transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/groups');
+                  return false;
+                }}
+              >
+                Groups
+              </a>
+            </div>
+
+            {/* Categories */}
+            <div className="flex items-center space-x-4 text-sm">
+              <a
+                href="/search?category=Electronics"
+                className="text-gray-600 hover:text-[#3665f3] transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/search?category=Electronics');
+                  return false;
+                }}
+              >
+                Electronics
+              </a>
+              <a
+                href="/search?category=Fashion"
+                className="text-gray-600 hover:text-[#3665f3] transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/search?category=Fashion');
+                  return false;
+                }}
+              >
+                Fashion
+              </a>
+              <a
+                href="/search?category=Furniture"
+                className="text-gray-600 hover:text-[#3665f3] transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/search?category=Furniture');
+                  return false;
+                }}
+              >
+                Furniture
+              </a>
+              <a
+                href="/search?category=Sports"
+                className="text-gray-600 hover:text-[#3665f3] transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/search?category=Sports');
+                  return false;
+                }}
+              >
+                Sports
+              </a>
+              <a
+                href="/search?category=Collectibles"
+                className="text-gray-600 hover:text-[#3665f3] transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/search?category=Collectibles');
+                  return false;
+                }}
+              >
+                Collectibles
+              </a>
+            </div>
           </div>
         </div>
 
@@ -230,13 +222,22 @@ const Navbar = () => {
                     <div className="flex flex-col space-y-2">
                       <AuthButtons />
                       <SellItemButton />
-                      <BiddingButton />
                     </div>
                   </li>
                 )}
                 <li>
                   <a href="/" className="block py-2 text-[#3665f3] font-medium">
                     For You
+                  </a>
+                </li>
+                <li>
+                  <a href="/bidding" className="block py-2 text-gray-700" onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/bidding');
+                    setIsMenuOpen(false);
+                    return false;
+                  }}>
+                    Bidding
                   </a>
                 </li>
                 <li>
@@ -256,18 +257,13 @@ const Navbar = () => {
                     setIsMenuOpen(false);
                     return false;
                   }}>
-                    Watchlist
+                    Saved
                   </a>
                 </li>
                 {currentUser && (
-                  <>
-                    <li>
-                      <SellItemButton />
-                    </li>
-                    <li>
-                      <BiddingButton />
-                    </li>
-                  </>
+                  <li>
+                    <SellItemButton />
+                  </li>
                 )}
               </ul>
             </nav>

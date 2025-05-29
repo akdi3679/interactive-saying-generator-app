@@ -1,24 +1,76 @@
 
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { mockProducts } from '../utils/mockData';
-import { formatDistanceToNow } from 'date-fns';
+import BiddingInterface from '../components/BiddingInterface';
+import StarRating from '../components/StarRating';
+import { ProductService } from '../services/ProductService';
+import { Product } from '../models/types';
 import WishlistButton from '../components/WishlistButton';
 import { useToast } from '@/components/ui/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Share2, Flag, Tag, Truck, ArrowLeft, MessageSquare } from 'lucide-react';
+import { ShoppingCart, Share2, Tag, Truck, ArrowLeft, MessageSquare } from 'lucide-react';
 import ContactSellerDialog from '../components/ContactSellerDialog';
 
 const ProductDetails = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   
-  const product = mockProducts.find(p => p.id === productId);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) return;
+      
+      try {
+        const fetchedProduct = await ProductService.getProductById(productId);
+        setProduct(fetchedProduct);
+        
+        if (fetchedProduct) {
+          // Fetch similar products
+          const allProducts = await ProductService.getProducts();
+          const similar = allProducts
+            .filter(p => p.category === fetchedProduct.category && p.id !== fetchedProduct.id)
+            .slice(0, 6);
+          setSimilarProducts(similar);
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
+
+  const handleBidPlaced = async () => {
+    // Refresh product data after bid
+    if (productId) {
+      const updatedProduct = await ProductService.getProductById(productId);
+      setProduct(updatedProduct);
+    }
+  };
   
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 container mx-auto px-4 py-8 flex justify-center items-center">
+          <div className="text-center">
+            <h1 className="text-xl">Loading...</h1>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -88,49 +140,42 @@ const ProductDetails = () => {
               </div>
             </div>
             
-            <div>
-              {product.bidding?.isAuction ? (
-                <div>
-                  <div className="mb-2">
-                    <span className="text-sm text-gray-500">Current bid:</span>
-                    <div className="text-2xl font-bold text-[#3665f3]">
-                      ${product.bidding.currentBid?.toFixed(2)}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      [{product.bidding.bidCount} {product.bidding.bidCount === 1 ? 'bid' : 'bids'}]
-                    </div>
-                  </div>
-                  
-                  {product.bidding.endTime && (
-                    <div className="text-sm text-gray-600">
-                      Time left: {formatDistanceToNow(new Date(product.bidding.endTime))}
-                    </div>
-                  )}
-                </div>
-              ) : (
+            {/* Bidding Interface or Buy Now */}
+            {product.bidding?.isAuction ? (
+              <BiddingInterface
+                productId={product.id}
+                currentBid={product.bidding.currentBid || 0}
+                bidCount={product.bidding.bidCount || 0}
+                endTime={product.bidding.endTime}
+                onBidPlaced={handleBidPlaced}
+              />
+            ) : (
+              <div>
                 <div className="mb-2">
                   <span className="text-sm text-gray-500">Price:</span>
                   <div className="text-2xl font-bold">
                     ${product.price.toFixed(2)}
                   </div>
                 </div>
-              )}
-              
-              {product.shipping && (
-                <div className="flex items-center text-sm space-x-1">
-                  <Truck className="h-4 w-4" />
-                  <span>
-                    {product.shipping.freeShipping ? 'Free shipping' : `$${product.shipping.cost.toFixed(2)} shipping`}
-                  </span>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
+            
+            {product.shipping && (
+              <div className="flex items-center text-sm space-x-1">
+                <Truck className="h-4 w-4" />
+                <span>
+                  {product.shipping.freeShipping ? 'Free shipping' : `$${product.shipping.cost.toFixed(2)} shipping`}
+                </span>
+              </div>
+            )}
             
             <div className="flex flex-col space-y-3">
-              <Button onClick={handleBuyNow} className="bg-[#3665f3] hover:bg-[#3665f3]/90">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                {product.bidding?.isAuction ? 'Place Bid' : 'Buy Now'}
-              </Button>
+              {(!product.bidding?.isAuction || product.buyNowPrice) && (
+                <Button onClick={handleBuyNow} className="bg-[#3665f3] hover:bg-[#3665f3]/90">
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Buy Now - ${(product.buyNowPrice || product.price).toFixed(2)}
+                </Button>
+              )}
               
               <div className="flex space-x-2">
                 <div className="flex-1">
@@ -152,13 +197,23 @@ const ProductDetails = () => {
                   {product.seller.name}
                 </a>
               </div>
+              {product.seller.rating && (
+                <div className="mb-2">
+                  <StarRating 
+                    rating={product.seller.rating} 
+                    totalRatings={product.seller.totalRatings}
+                    size="sm"
+                  />
+                </div>
+              )}
               <div className="text-sm text-gray-500">
-                Member since {new Date(product.seller.createdAt).toLocaleDateString()}
+                Member since {new Date(product.seller.createdAt).getFullYear()}
               </div>
             </div>
           </div>
         </div>
         
+        {/* Tabs for product details */}
         <div className="mt-8">
           <Tabs defaultValue="description">
             <TabsList className="w-full">
@@ -200,13 +255,12 @@ const ProductDetails = () => {
           </Tabs>
         </div>
         
-        <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">Similar Items</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {mockProducts
-              .filter(p => p.category === product.category && p.id !== product.id)
-              .slice(0, 6)
-              .map(p => (
+        {/* Similar Items */}
+        {similarProducts.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl font-bold mb-4">Similar Items</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {similarProducts.map(p => (
                 <div key={p.id} className="border border-gray-200 rounded-md overflow-hidden cursor-pointer"
                       onClick={() => navigate(`/product/${p.id}`)}>
                   <div className="h-36 bg-gray-100">
@@ -218,8 +272,9 @@ const ProductDetails = () => {
                   </div>
                 </div>
               ))}
+            </div>
           </div>
-        </div>
+        )}
       </main>
       
       <Footer />
