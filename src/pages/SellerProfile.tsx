@@ -7,7 +7,7 @@ import ProductCard from '../components/ProductCard';
 import StarRating from '../components/StarRating';
 import { testUsers } from '../utils/testData';
 import { ProductService } from '../services/ProductService';
-import { Mail, MessageSquare, User } from 'lucide-react';
+import { Mail, MessageSquare, User, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +22,7 @@ const SellerProfile = () => {
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
   const [sellerProducts, setSellerProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState('all');
   
   const seller = testUsers.find(user => user.id === sellerId);
   
@@ -41,8 +42,14 @@ const SellerProfile = () => {
     fetchSellerProducts();
   }, [sellerId]);
   
-  const activeProducts = sellerProducts.filter(p => !p.isArchived);
-  const archivedProducts = sellerProducts.filter(p => p.isArchived);
+  const filteredProducts = sellerProducts.filter(product => {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'active') return !product.isArchived;
+    if (activeFilter === 'archived') return product.isArchived;
+    if (activeFilter === 'auction') return product.bidding?.isAuction;
+    if (activeFilter === 'buynow') return !product.bidding?.isAuction;
+    return true;
+  });
   
   if (!seller) {
     return (
@@ -71,6 +78,13 @@ const SellerProfile = () => {
     setMessage('');
     setIsMessageDialogOpen(false);
   };
+  
+  const badges = [
+    { name: 'Top Seller', icon: '🏆', description: 'High sales volume' },
+    { name: 'Fast Shipper', icon: '⚡', description: 'Quick delivery' },
+    { name: 'Quality Products', icon: '⭐', description: 'High-rated items' },
+    { name: 'Verified Seller', icon: '✅', description: 'Identity verified' }
+  ];
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -154,45 +168,82 @@ const SellerProfile = () => {
           </div>
         </div>
         
+        {/* Badges Section */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            <Award className="h-5 w-5 mr-2" />
+            Badges Owned
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {badges.map((badge, index) => (
+              <div key={index} className="flex flex-col items-center p-4 border border-gray-200 rounded-lg">
+                <div className="text-2xl mb-2">{badge.icon}</div>
+                <div className="font-medium text-sm text-center">{badge.name}</div>
+                <div className="text-xs text-gray-500 text-center mt-1">{badge.description}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
         <div className="space-y-8">
-          <Tabs defaultValue="active" className="w-full">
-            <TabsList>
-              <TabsTrigger value="active">Active Listings ({activeProducts.length})</TabsTrigger>
-              <TabsTrigger value="archived">Archived ({archivedProducts.length})</TabsTrigger>
-            </TabsList>
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 className="text-xl font-bold mb-4">Listed Products</h2>
             
-            <TabsContent value="active" className="mt-6">
-              {loading ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">Loading products...</p>
-                </div>
-              ) : activeProducts.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">This seller has no active listings.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {activeProducts.map(product => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
+            {/* Filter Buttons */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              <Button 
+                variant={activeFilter === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveFilter('all')}
+              >
+                All ({sellerProducts.length})
+              </Button>
+              <Button 
+                variant={activeFilter === 'active' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveFilter('active')}
+              >
+                Active ({sellerProducts.filter(p => !p.isArchived).length})
+              </Button>
+              <Button 
+                variant={activeFilter === 'archived' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveFilter('archived')}
+              >
+                Archived ({sellerProducts.filter(p => p.isArchived).length})
+              </Button>
+              <Button 
+                variant={activeFilter === 'auction' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveFilter('auction')}
+              >
+                Auctions ({sellerProducts.filter(p => p.bidding?.isAuction).length})
+              </Button>
+              <Button 
+                variant={activeFilter === 'buynow' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveFilter('buynow')}
+              >
+                Buy Now ({sellerProducts.filter(p => !p.bidding?.isAuction).length})
+              </Button>
+            </div>
             
-            <TabsContent value="archived" className="mt-6">
-              {archivedProducts.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">This seller has no archived listings.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {archivedProducts.map(product => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+            {loading ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">Loading products...</p>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No products found for this filter.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {filteredProducts.map(product => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </main>
       
