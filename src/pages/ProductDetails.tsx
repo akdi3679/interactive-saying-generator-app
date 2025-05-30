@@ -11,6 +11,7 @@ import { ProductService } from '../services/ProductService';
 import { Product } from '../models/types';
 import WishlistButton from '../components/WishlistButton';
 import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Share2, Tag, Truck, ArrowLeft } from 'lucide-react';
 import ContactSellerDialog from '../components/ContactSellerDialog';
@@ -195,46 +196,46 @@ const ProductDetails = () => {
           </div>
         </div>
         
-        {/* Product Details Section - Vertical Layout */}
-        <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
-          <div className="space-y-6">
-            {/* Description */}
-            <div>
-              <h2 className="text-xl font-bold mb-3">Description</h2>
-              <div className="prose max-w-none">
-                <p className="text-gray-700">{product.description}</p>
-              </div>
-            </div>
+        {/* Tabs for product details */}
+        <div className="mt-8">
+          <Tabs defaultValue="description">
+            <TabsList className="w-full">
+              <TabsTrigger value="description" className="flex-1">Description</TabsTrigger>
+              <TabsTrigger value="shipping" className="flex-1">Shipping</TabsTrigger>
+              <TabsTrigger value="returns" className="flex-1">Returns</TabsTrigger>
+            </TabsList>
             
-            {/* Shipping */}
-            <div>
-              <h2 className="text-xl font-bold mb-3">Shipping</h2>
+            <TabsContent value="description" className="mt-4">
+              <div className="prose max-w-none">
+                <p>{product.description}</p>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="shipping" className="mt-4">
               {product.shipping ? (
-                <div className="space-y-2 text-gray-700">
+                <div className="space-y-2">
                   <p><strong>Cost:</strong> {product.shipping.freeShipping ? 'Free' : `$${product.shipping.cost.toFixed(2)}`}</p>
                   <p><strong>Expedited:</strong> {product.shipping.expeditedAvailable ? 'Available' : 'Not Available'}</p>
                   <p><strong>Location:</strong> {product.location}</p>
                 </div>
               ) : (
-                <p className="text-gray-700">No shipping information available.</p>
+                <p>No shipping information available.</p>
               )}
-            </div>
+            </TabsContent>
             
-            {/* Returns */}
-            <div>
-              <h2 className="text-xl font-bold mb-3">Returns</h2>
+            <TabsContent value="returns" className="mt-4">
               {product.returns ? (
-                <div className="space-y-2 text-gray-700">
+                <div className="space-y-2">
                   <p><strong>Returns:</strong> {product.returns.accepted ? 'Accepted' : 'Not Accepted'}</p>
                   {product.returns.periodDays && (
                     <p><strong>Return Period:</strong> {product.returns.periodDays} days</p>
                   )}
                 </div>
               ) : (
-                <p className="text-gray-700">No return information available.</p>
+                <p>No return information available.</p>
               )}
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
         </div>
         
         {/* Similar Items */}

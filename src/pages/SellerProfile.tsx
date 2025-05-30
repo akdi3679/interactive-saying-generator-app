@@ -7,13 +7,12 @@ import ProductCard from '../components/ProductCard';
 import StarRating from '../components/StarRating';
 import { testUsers } from '../utils/testData';
 import { ProductService } from '../services/ProductService';
-import { Mail, MessageSquare, User, Award, Filter } from 'lucide-react';
+import { Mail, MessageSquare, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Product } from '../models/types';
 
 const SellerProfile = () => {
@@ -22,19 +21,9 @@ const SellerProfile = () => {
   const [message, setMessage] = useState('');
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
   const [sellerProducts, setSellerProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [conditionFilter, setConditionFilter] = useState('all');
   
   const seller = testUsers.find(user => user.id === sellerId);
-  
-  const badges = [
-    { name: 'Top Seller', color: 'bg-yellow-500', icon: '🏆' },
-    { name: 'Fast Shipper', color: 'bg-blue-500', icon: '🚚' },
-    { name: 'Quality Items', color: 'bg-green-500', icon: '⭐' },
-    { name: 'Trusted Seller', color: 'bg-purple-500', icon: '🛡️' }
-  ];
   
   useEffect(() => {
     const fetchSellerProducts = async () => {
@@ -42,7 +31,6 @@ const SellerProfile = () => {
         const allProducts = await ProductService.getProducts();
         const products = allProducts.filter(product => product.seller.id === sellerId);
         setSellerProducts(products);
-        setFilteredProducts(products);
       } catch (error) {
         console.error('Error fetching seller products:', error);
       } finally {
@@ -53,25 +41,8 @@ const SellerProfile = () => {
     fetchSellerProducts();
   }, [sellerId]);
   
-  useEffect(() => {
-    let filtered = sellerProducts;
-    
-    if (categoryFilter !== 'all') {
-      filtered = filtered.filter(p => p.category === categoryFilter);
-    }
-    
-    if (conditionFilter !== 'all') {
-      filtered = filtered.filter(p => p.condition === conditionFilter);
-    }
-    
-    setFilteredProducts(filtered);
-  }, [categoryFilter, conditionFilter, sellerProducts]);
-  
-  const activeProducts = filteredProducts.filter(p => !p.isArchived);
-  const archivedProducts = filteredProducts.filter(p => p.isArchived);
-  
-  const categories = [...new Set(sellerProducts.map(p => p.category))];
-  const conditions = [...new Set(sellerProducts.map(p => p.condition))];
+  const activeProducts = sellerProducts.filter(p => !p.isArchived);
+  const archivedProducts = sellerProducts.filter(p => p.isArchived);
   
   if (!seller) {
     return (
@@ -137,22 +108,6 @@ const SellerProfile = () => {
                 )}
               </div>
               
-              {/* Badges Owned Section */}
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold mb-2 flex items-center">
-                  <Award className="h-5 w-5 mr-2" />
-                  Badges Owned
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {badges.map((badge, index) => (
-                    <div key={index} className={`${badge.color} text-white px-3 py-1 rounded-full text-sm flex items-center gap-1`}>
-                      <span>{badge.icon}</span>
-                      <span>{badge.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
               <p className="text-gray-600 mb-6">
                 Welcome to my eBay store! I specialize in quality products with fast shipping and excellent customer service.
               </p>
@@ -200,38 +155,6 @@ const SellerProfile = () => {
         </div>
         
         <div className="space-y-8">
-          {/* Filters */}
-          <div className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              <span className="font-medium">Filters:</span>
-            </div>
-            
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>{category}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Select value={conditionFilter} onValueChange={setConditionFilter}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Condition" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Conditions</SelectItem>
-                {conditions.map(condition => (
-                  <SelectItem key={condition} value={condition}>{condition}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
           <Tabs defaultValue="active" className="w-full">
             <TabsList>
               <TabsTrigger value="active">Active Listings ({activeProducts.length})</TabsTrigger>
@@ -245,7 +168,7 @@ const SellerProfile = () => {
                 </div>
               ) : activeProducts.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-500">No active listings found with current filters.</p>
+                  <p className="text-gray-500">This seller has no active listings.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -259,7 +182,7 @@ const SellerProfile = () => {
             <TabsContent value="archived" className="mt-6">
               {archivedProducts.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-500">No archived listings found with current filters.</p>
+                  <p className="text-gray-500">This seller has no archived listings.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
