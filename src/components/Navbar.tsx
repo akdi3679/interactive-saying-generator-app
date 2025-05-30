@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Bell, Menu, Search, X, MapPin, MessageSquare } from 'lucide-react';
+import { Bell, Menu, X, MapPin, MessageSquare, Heart, Gavel, Bookmark, Users, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
@@ -12,6 +12,7 @@ const Navbar = () => {
   const auth = getAuthState();
   const currentUser = auth.isLoggedIn ? auth.user : null;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState({
     lat: 40.7128,
     lng: -74.0060,
@@ -42,6 +43,8 @@ const Navbar = () => {
   };
 
   const activeTab = getActiveTab();
+
+  const categories = ['Electronics', 'Fashion', 'Furniture', 'Sports', 'Books', 'Toys', 'Home & Garden', 'Automotive'];
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-lg bg-white border-b border-gray-200">
@@ -105,11 +108,11 @@ const Navbar = () => {
 
           {/* Third Row - Main Navigation */}
           <div className="hidden md:flex items-center justify-between">
-            {/* Primary Navigation with Background */}
+            {/* Primary Navigation with Icons */}
             <div className="flex items-center space-x-1 bg-[#3665f3]/5 rounded-lg p-1">
               <a
                 href="/"
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${
                   activeTab === 'foryou' 
                     ? 'bg-[#3665f3] text-white' 
                     : 'text-gray-700 hover:bg-white hover:text-[#3665f3]'
@@ -120,11 +123,12 @@ const Navbar = () => {
                   return false;
                 }}
               >
-                For You
+                <Heart className="h-4 w-4" />
+                <span className="hidden lg:inline">For You</span>
               </a>
               <a
                 href="/bidding"
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${
                   activeTab === 'bidding' 
                     ? 'bg-[#3665f3] text-white' 
                     : 'text-gray-700 hover:bg-white hover:text-[#3665f3]'
@@ -135,11 +139,12 @@ const Navbar = () => {
                   return false;
                 }}
               >
-                Bidding
+                <Gavel className="h-4 w-4" />
+                <span className="hidden lg:inline">Bidding</span>
               </a>
               <a
                 href="/wishlist"
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${
                   activeTab === 'saved' 
                     ? 'bg-[#3665f3] text-white' 
                     : 'text-gray-700 hover:bg-white hover:text-[#3665f3]'
@@ -150,11 +155,12 @@ const Navbar = () => {
                   return false;
                 }}
               >
-                Saved
+                <Bookmark className="h-4 w-4" />
+                <span className="hidden lg:inline">Saved</span>
               </a>
               <a
                 href="/groups"
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${
                   activeTab === 'groups' 
                     ? 'bg-[#3665f3] text-white' 
                     : 'text-gray-700 hover:bg-white hover:text-[#3665f3]'
@@ -165,15 +171,16 @@ const Navbar = () => {
                   return false;
                 }}
               >
-                Groups
+                <Users className="h-4 w-4" />
+                <span className="hidden lg:inline">Groups</span>
               </a>
               <a
                 href="/messages"
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${
                   activeTab === 'messages' 
                     ? 'bg-[#3665f3] text-white' 
                     : 'text-gray-700 hover:bg-white hover:text-[#3665f3]'
-                } flex items-center gap-2`}
+                }`}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate('/messages');
@@ -181,56 +188,44 @@ const Navbar = () => {
                 }}
               >
                 <MessageSquare className="h-4 w-4" />
-                Messages
+                <span className="hidden lg:inline">Messages</span>
               </a>
             </div>
 
             {/* Categories - Closer to main navigation */}
-            <div className="flex items-center space-x-4 text-sm bg-gray-50 rounded-lg px-4 py-2 ml-4">
-              <a
-                href="/search?category=Electronics"
-                className="text-gray-600 hover:text-[#3665f3] transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('/search?category=Electronics');
-                  return false;
-                }}
+            <div className="relative ml-4">
+              <div 
+                className="flex items-center space-x-4 text-sm bg-gray-50 rounded-lg px-4 py-2 cursor-pointer hover:bg-gray-100"
+                onMouseEnter={() => setShowCategories(true)}
+                onMouseLeave={() => setShowCategories(false)}
               >
-                Electronics
-              </a>
-              <a
-                href="/search?category=Fashion"
-                className="text-gray-600 hover:text-[#3665f3] transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('/search?category=Fashion');
-                  return false;
-                }}
-              >
-                Fashion
-              </a>
-              <a
-                href="/search?category=Furniture"
-                className="text-gray-600 hover:text-[#3665f3] transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('/search?category=Furniture');
-                  return false;
-                }}
-              >
-                Furniture
-              </a>
-              <a
-                href="/search?category=Sports"
-                className="text-gray-600 hover:text-[#3665f3] transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('/search?category=Sports');
-                  return false;
-                }}
-              >
-                Sports
-              </a>
+                <span className="text-gray-600">Categories</span>
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              </div>
+              
+              {showCategories && (
+                <div 
+                  className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2 min-w-[200px] z-50"
+                  onMouseEnter={() => setShowCategories(true)}
+                  onMouseLeave={() => setShowCategories(false)}
+                >
+                  {categories.map((category) => (
+                    <a
+                      key={category}
+                      href={`/search?category=${category}`}
+                      className="block px-3 py-2 text-sm text-gray-600 hover:text-[#3665f3] hover:bg-gray-50 rounded transition-colors"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/search?category=${category}`);
+                        setShowCategories(false);
+                        return false;
+                      }}
+                    >
+                      {category}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -249,42 +244,46 @@ const Navbar = () => {
                   </li>
                 )}
                 <li>
-                  <a href="/" className={`block py-2 font-medium ${activeTab === 'foryou' ? 'text-[#3665f3]' : 'text-gray-700'}`}>
+                  <a href="/" className={`flex items-center gap-2 py-2 font-medium ${activeTab === 'foryou' ? 'text-[#3665f3]' : 'text-gray-700'}`}>
+                    <Heart className="h-4 w-4" />
                     For You
                   </a>
                 </li>
                 <li>
-                  <a href="/bidding" className={`block py-2 ${activeTab === 'bidding' ? 'text-[#3665f3] font-medium' : 'text-gray-700'}`} onClick={(e) => {
+                  <a href="/bidding" className={`flex items-center gap-2 py-2 ${activeTab === 'bidding' ? 'text-[#3665f3] font-medium' : 'text-gray-700'}`} onClick={(e) => {
                     e.preventDefault();
                     navigate('/bidding');
                     setIsMenuOpen(false);
                     return false;
                   }}>
+                    <Gavel className="h-4 w-4" />
                     Bidding
                   </a>
                 </li>
                 <li>
-                  <a href="/groups" className={`block py-2 ${activeTab === 'groups' ? 'text-[#3665f3] font-medium' : 'text-gray-700'}`} onClick={(e) => {
+                  <a href="/groups" className={`flex items-center gap-2 py-2 ${activeTab === 'groups' ? 'text-[#3665f3] font-medium' : 'text-gray-700'}`} onClick={(e) => {
                     e.preventDefault();
                     navigate('/groups');
                     setIsMenuOpen(false);
                     return false;
                   }}>
+                    <Users className="h-4 w-4" />
                     Groups
                   </a>
                 </li>
                 <li>
-                  <a href="/wishlist" className={`block py-2 ${activeTab === 'saved' ? 'text-[#3665f3] font-medium' : 'text-gray-700'}`} onClick={(e) => {
+                  <a href="/wishlist" className={`flex items-center gap-2 py-2 ${activeTab === 'saved' ? 'text-[#3665f3] font-medium' : 'text-gray-700'}`} onClick={(e) => {
                     e.preventDefault();
                     navigate('/wishlist');
                     setIsMenuOpen(false);
                     return false;
                   }}>
+                    <Bookmark className="h-4 w-4" />
                     Saved
                   </a>
                 </li>
                 <li>
-                  <a href="/messages" className={`block py-2 ${activeTab === 'messages' ? 'text-[#3665f3] font-medium' : 'text-gray-700'} flex items-center gap-2`} onClick={(e) => {
+                  <a href="/messages" className={`flex items-center gap-2 py-2 ${activeTab === 'messages' ? 'text-[#3665f3] font-medium' : 'text-gray-700'}`} onClick={(e) => {
                     e.preventDefault();
                     navigate('/messages');
                     setIsMenuOpen(false);

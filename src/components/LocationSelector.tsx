@@ -4,6 +4,7 @@ import { MapPin, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Slider } from '@/components/ui/slider';
 
 interface LocationSelectorProps {
   selectedLocation: {
@@ -20,7 +21,7 @@ const LocationSelector = ({ selectedLocation, onLocationChange }: LocationSelect
   const [searchQuery, setSearchQuery] = useState('');
   const [tempLocation, setTempLocation] = useState(selectedLocation);
   const [range, setRange] = useState(selectedLocation.range);
-  const mapRef = useRef(null);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   const mockLocations = [
     { address: 'New York, NY', lat: 40.7128, lng: -74.0060 },
@@ -44,10 +45,6 @@ const LocationSelector = ({ selectedLocation, onLocationChange }: LocationSelect
     setSearchQuery('');
   };
 
-  const handleRangeChange = (newRange: number) => {
-    setRange(newRange);
-  };
-
   const handleApply = () => {
     onLocationChange({ ...tempLocation, range });
     setIsOpen(false);
@@ -66,11 +63,11 @@ const LocationSelector = ({ selectedLocation, onLocationChange }: LocationSelect
             {getShortAddress(selectedLocation.address)}
           </span>
           <span className="text-xs bg-[#3665f3] text-white px-2 py-1 rounded">
-            {selectedLocation.range}mi
+            {selectedLocation.range}km
           </span>
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Select Location & Range</DialogTitle>
         </DialogHeader>
@@ -103,41 +100,70 @@ const LocationSelector = ({ selectedLocation, onLocationChange }: LocationSelect
             </div>
           )}
           
+          {/* Interactive Map */}
+          <div className="h-64 bg-gray-100 rounded-md relative overflow-hidden border">
+            <div 
+              ref={mapRef}
+              className="w-full h-full bg-gradient-to-br from-blue-100 to-green-100 relative cursor-move"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f0f0f0' fill-opacity='0.5'%3E%3Cpath d='m0 40l40-40h-40v40zm40 0v-40h-40l40 40z'/%3E%3C/g%3E%3C/svg%3E")`,
+              }}
+            >
+              {/* Position Indicator */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div className="relative">
+                  {/* Range Circle */}
+                  <div 
+                    className="absolute border-2 border-[#3665f3] border-opacity-30 bg-[#3665f3] bg-opacity-10 rounded-full"
+                    style={{
+                      width: `${Math.min(range * 2, 200)}px`,
+                      height: `${Math.min(range * 2, 200)}px`,
+                      left: `${-Math.min(range, 100)}px`,
+                      top: `${-Math.min(range, 100)}px`,
+                    }}
+                  />
+                  {/* Center Pin */}
+                  <div className="w-6 h-6 bg-[#3665f3] rounded-full border-2 border-white shadow-lg flex items-center justify-center">
+                    <MapPin className="h-3 w-3 text-white" />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Map Controls */}
+              <div className="absolute top-2 right-2 flex flex-col gap-1">
+                <button className="w-8 h-8 bg-white rounded shadow flex items-center justify-center text-lg font-bold hover:bg-gray-50">+</button>
+                <button className="w-8 h-8 bg-white rounded shadow flex items-center justify-center text-lg font-bold hover:bg-gray-50">-</button>
+              </div>
+            </div>
+          </div>
+          
           <div className="bg-gray-100 rounded-md p-4">
             <div className="flex items-center gap-2 mb-2">
               <MapPin className="h-5 w-5 text-[#3665f3]" />
               <span className="font-medium">Selected: {tempLocation.address}</span>
             </div>
-            <div className="text-sm text-gray-600">
-              Lat: {tempLocation.lat.toFixed(4)}, Lng: {tempLocation.lng.toFixed(4)}
-            </div>
           </div>
           
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">Search Range: {range} miles</label>
+              <label className="text-sm font-medium">Search Range: {range} km</label>
               <span className="text-xs bg-[#3665f3]/10 text-[#3665f3] px-2 py-1 rounded">
-                Max 100mi
+                Max 100km
               </span>
             </div>
-            <div className="relative">
-              <input
-                type="range"
-                min="1"
-                max="100"
-                value={range}
-                onChange={(e) => handleRangeChange(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                style={{
-                  background: `linear-gradient(to right, #3665f3 0%, #3665f3 ${range}%, #e5e7eb ${range}%, #e5e7eb 100%)`
-                }}
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>1mi</span>
-                <span>25mi</span>
-                <span>50mi</span>
-                <span>100mi</span>
-              </div>
+            <Slider
+              value={[range]}
+              onValueChange={(value) => setRange(value[0])}
+              max={100}
+              min={1}
+              step={1}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>1km</span>
+              <span>25km</span>
+              <span>50km</span>
+              <span>100km</span>
             </div>
           </div>
           

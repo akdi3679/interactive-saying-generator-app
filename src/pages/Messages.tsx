@@ -66,12 +66,12 @@ const Messages = () => {
       
       <main className="flex-1 bg-gray-50">
         <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
-            {/* Conversations List */}
-            <div className="lg:col-span-1">
+          <div className="flex gap-4 h-[calc(100vh-200px)]">
+            {/* Conversations List - 30% width */}
+            <div className="w-[30%]">
               <Card className="h-full flex flex-col">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <MessageSquare className="h-5 w-5" />
                     Messages
                   </CardTitle>
@@ -89,33 +89,33 @@ const Messages = () => {
                   {filteredConversations.length === 0 ? (
                     <div className="p-4 text-center text-gray-500">
                       <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>No conversations yet</p>
-                      <p className="text-sm">Contact sellers to start messaging</p>
+                      <p className="text-sm">No conversations yet</p>
+                      <p className="text-xs text-gray-400">Contact sellers to start messaging</p>
                     </div>
                   ) : (
-                    <div className="space-y-0">
+                    <div>
                       {filteredConversations.map((conv) => (
                         <div
                           key={conv.id}
                           onClick={() => setSelectedConversation(conv.id)}
                           className={`p-4 cursor-pointer border-b hover:bg-gray-50 transition-colors ${
-                            selectedConversation === conv.id ? 'bg-blue-50 border-r-2 border-r-[#3665f3]' : ''
+                            selectedConversation === conv.id ? 'bg-blue-50 border-r-4 border-r-[#3665f3]' : ''
                           }`}
                         >
                           <div className="flex items-start gap-3">
                             <img
                               src={conv.sellerAvatar}
                               alt={conv.sellerName}
-                              className="h-10 w-10 rounded-full object-cover"
+                              className="h-12 w-12 rounded-full object-cover flex-shrink-0"
                             />
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
+                              <div className="flex items-center justify-between mb-1">
                                 <h4 className="font-medium text-sm truncate">{conv.sellerName}</h4>
                                 <span className="text-xs text-gray-500">
                                   {new Date(conv.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-600 mb-1">{conv.productTitle}</p>
+                              <p className="text-xs text-gray-600 mb-1 truncate">{conv.productTitle}</p>
                               <p className="text-sm text-gray-700 truncate">{conv.lastMessage}</p>
                             </div>
                           </div>
@@ -127,21 +127,21 @@ const Messages = () => {
               </Card>
             </div>
 
-            {/* Chat Area */}
-            <div className="lg:col-span-2">
+            {/* Chat Area - 70% width */}
+            <div className="w-[70%]">
               <Card className="h-full flex flex-col">
                 {selectedConv ? (
                   <>
                     {/* Chat Header */}
-                    <CardHeader className="border-b">
+                    <CardHeader className="border-b pb-3">
                       <div className="flex items-center gap-3">
                         <img
                           src={selectedConv.sellerAvatar}
                           alt={selectedConv.sellerName}
-                          className="h-10 w-10 rounded-full object-cover"
+                          className="h-12 w-12 rounded-full object-cover"
                         />
                         <div>
-                          <h3 className="font-medium">{selectedConv.sellerName}</h3>
+                          <h3 className="font-medium text-lg">{selectedConv.sellerName}</h3>
                           <p className="text-sm text-gray-600">
                             About: {selectedConv.productTitle}
                           </p>
@@ -158,10 +158,10 @@ const Messages = () => {
                             className={`flex ${message.fromUser === 'current' ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
-                              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                              className={`max-w-[70%] px-4 py-3 rounded-lg ${
                                 message.fromUser === 'current'
-                                  ? 'bg-[#3665f3] text-white'
-                                  : 'bg-gray-100 text-gray-900'
+                                  ? 'bg-[#3665f3] text-white rounded-br-sm'
+                                  : 'bg-gray-100 text-gray-900 rounded-bl-sm'
                               }`}
                             >
                               <p className="text-sm">{message.content}</p>
@@ -178,12 +178,12 @@ const Messages = () => {
 
                     {/* Message Input */}
                     <div className="border-t p-4">
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <Textarea
                           placeholder="Type your message..."
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
-                          className="flex-1 min-h-[60px] max-h-[120px]"
+                          className="flex-1 min-h-[80px] max-h-[120px] resize-none"
                           onKeyPress={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                               e.preventDefault();
@@ -191,7 +191,11 @@ const Messages = () => {
                             }
                           }}
                         />
-                        <Button onClick={handleSendMessage} className="self-end">
+                        <Button 
+                          onClick={handleSendMessage} 
+                          className="self-end px-6"
+                          disabled={!newMessage.trim()}
+                        >
                           <Send className="h-4 w-4" />
                         </Button>
                       </div>
@@ -200,8 +204,8 @@ const Messages = () => {
                 ) : (
                   <CardContent className="flex-1 flex items-center justify-center">
                     <div className="text-center">
-                      <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-600 mb-2">Select a conversation</h3>
+                      <MessageSquare className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-xl font-medium text-gray-600 mb-2">Select a conversation</h3>
                       <p className="text-gray-500">Choose a conversation from the list to start messaging</p>
                     </div>
                   </CardContent>
