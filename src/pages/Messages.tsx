@@ -1,14 +1,12 @@
 
 import { useState, useEffect } from 'react';
-import { MessageSquare, Send, Search, User } from 'lucide-react';
+import { MessageSquare, Send, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Message, User as UserType } from '@/models/types';
 
 const Messages = () => {
   const [conversations, setConversations] = useState<any[]>([]);
@@ -17,75 +15,15 @@ const Messages = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Load mock conversations
-    const mockConversations = [
-      {
-        id: '1',
-        user: {
-          id: 'seller1',
-          name: 'John Doe',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=john',
-          lastSeen: new Date(Date.now() - 30 * 60 * 1000) // 30 minutes ago
-        },
-        lastMessage: 'Is this item still available?',
-        lastMessageTime: new Date(Date.now() - 30 * 60 * 1000),
-        unreadCount: 2,
-        productTitle: 'iPhone 13 Pro',
-        messages: [
-          {
-            id: 'm1',
-            fromUser: 'seller1',
-            content: 'Hi, I\'m interested in your iPhone 13 Pro. Is it still available?',
-            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-            isRead: true
-          },
-          {
-            id: 'm2',
-            fromUser: 'current',
-            content: 'Yes, it\'s still available! Are you interested in making an offer?',
-            timestamp: new Date(Date.now() - 90 * 60 * 1000),
-            isRead: true
-          },
-          {
-            id: 'm3',
-            fromUser: 'seller1',
-            content: 'Is this item still available?',
-            timestamp: new Date(Date.now() - 30 * 60 * 1000),
-            isRead: false
-          }
-        ]
-      },
-      {
-        id: '2',
-        user: {
-          id: 'buyer2',
-          name: 'Sarah Smith',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
-          lastSeen: new Date(Date.now() - 5 * 60 * 1000) // 5 minutes ago
-        },
-        lastMessage: 'Great! I\'ll take it.',
-        lastMessageTime: new Date(Date.now() - 10 * 60 * 1000),
-        unreadCount: 0,
-        productTitle: 'Vintage Camera',
-        messages: [
-          {
-            id: 'm4',
-            fromUser: 'current',
-            content: 'Hello! Thanks for your interest in the vintage camera.',
-            timestamp: new Date(Date.now() - 60 * 60 * 1000),
-            isRead: true
-          },
-          {
-            id: 'm5',
-            fromUser: 'buyer2',
-            content: 'Great! I\'ll take it.',
-            timestamp: new Date(Date.now() - 10 * 60 * 1000),
-            isRead: true
-          }
-        ]
-      }
-    ];
-    setConversations(mockConversations);
+    const loadConversations = () => {
+      const savedConversations = JSON.parse(localStorage.getItem('conversations') || '[]');
+      setConversations(savedConversations);
+    };
+
+    loadConversations();
+    
+    const interval = setInterval(loadConversations, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleSendMessage = () => {
@@ -97,27 +35,28 @@ const Messages = () => {
           id: `m${Date.now()}`,
           fromUser: 'current',
           content: newMessage,
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
           isRead: true
         };
         return {
           ...conv,
           messages: [...conv.messages, newMsg],
           lastMessage: newMessage,
-          lastMessageTime: new Date()
+          lastMessageTime: new Date().toISOString()
         };
       }
       return conv;
     });
 
     setConversations(updatedConversations);
+    localStorage.setItem('conversations', JSON.stringify(updatedConversations));
     setNewMessage('');
   };
 
   const selectedConv = conversations.find(conv => conv.id === selectedConversation);
 
   const filteredConversations = conversations.filter(conv =>
-    conv.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    conv.sellerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.productTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -147,42 +86,43 @@ const Messages = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="flex-1 overflow-y-auto p-0">
-                  <div className="space-y-0">
-                    {filteredConversations.map((conv) => (
-                      <div
-                        key={conv.id}
-                        onClick={() => setSelectedConversation(conv.id)}
-                        className={`p-4 cursor-pointer border-b hover:bg-gray-50 transition-colors ${
-                          selectedConversation === conv.id ? 'bg-blue-50 border-r-2 border-r-[#3665f3]' : ''
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <img
-                            src={conv.user.avatar}
-                            alt={conv.user.name}
-                            className="h-10 w-10 rounded-full object-cover"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-medium text-sm truncate">{conv.user.name}</h4>
-                              <span className="text-xs text-gray-500">
-                                {conv.lastMessageTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-600 mb-1">{conv.productTitle}</p>
-                            <p className="text-sm text-gray-700 truncate">{conv.lastMessage}</p>
-                            {conv.unreadCount > 0 && (
-                              <div className="mt-2">
-                                <span className="bg-[#3665f3] text-white text-xs px-2 py-1 rounded-full">
-                                  {conv.unreadCount}
+                  {filteredConversations.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">
+                      <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>No conversations yet</p>
+                      <p className="text-sm">Contact sellers to start messaging</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-0">
+                      {filteredConversations.map((conv) => (
+                        <div
+                          key={conv.id}
+                          onClick={() => setSelectedConversation(conv.id)}
+                          className={`p-4 cursor-pointer border-b hover:bg-gray-50 transition-colors ${
+                            selectedConversation === conv.id ? 'bg-blue-50 border-r-2 border-r-[#3665f3]' : ''
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <img
+                              src={conv.sellerAvatar}
+                              alt={conv.sellerName}
+                              className="h-10 w-10 rounded-full object-cover"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <h4 className="font-medium text-sm truncate">{conv.sellerName}</h4>
+                                <span className="text-xs text-gray-500">
+                                  {new Date(conv.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               </div>
-                            )}
+                              <p className="text-xs text-gray-600 mb-1">{conv.productTitle}</p>
+                              <p className="text-sm text-gray-700 truncate">{conv.lastMessage}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -196,17 +136,14 @@ const Messages = () => {
                     <CardHeader className="border-b">
                       <div className="flex items-center gap-3">
                         <img
-                          src={selectedConv.user.avatar}
-                          alt={selectedConv.user.name}
+                          src={selectedConv.sellerAvatar}
+                          alt={selectedConv.sellerName}
                           className="h-10 w-10 rounded-full object-cover"
                         />
                         <div>
-                          <h3 className="font-medium">{selectedConv.user.name}</h3>
+                          <h3 className="font-medium">{selectedConv.sellerName}</h3>
                           <p className="text-sm text-gray-600">
                             About: {selectedConv.productTitle}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Last seen {selectedConv.user.lastSeen.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
                       </div>
@@ -231,7 +168,7 @@ const Messages = () => {
                               <p className={`text-xs mt-1 ${
                                 message.fromUser === 'current' ? 'text-blue-100' : 'text-gray-500'
                               }`}>
-                                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </p>
                             </div>
                           </div>

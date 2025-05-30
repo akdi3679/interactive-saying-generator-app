@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Product } from '../models/types';
 import { Button } from './ui/button';
 import { ArrowRight, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
@@ -10,7 +10,7 @@ import { Skeleton } from './ui/skeleton';
 const DailyDeals = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -18,10 +18,9 @@ const DailyDeals = () => {
       try {
         setLoading(true);
         const fetchedProducts = await ProductService.getProducts();
-        // Mock daily deals - filter products with discounts
         const dealsProducts = fetchedProducts
           .filter(product => !product.isArchived)
-          .slice(0, 12); // Limit to 12 products for deals
+          .slice(0, 12);
         setProducts(dealsProducts);
       } catch (error) {
         console.error('Error fetching daily deals:', error);
@@ -34,20 +33,18 @@ const DailyDeals = () => {
   }, []);
   
   const handleSeeAll = () => {
-    navigate('/search?deals=daily');
+    navigate('/daily-deals');
   };
 
   const scrollLeft = () => {
-    const container = document.getElementById('deals-container');
-    if (container) {
-      container.scrollBy({ left: -300, behavior: 'smooth' });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
     }
   };
 
   const scrollRight = () => {
-    const container = document.getElementById('deals-container');
-    if (container) {
-      container.scrollBy({ left: 300, behavior: 'smooth' });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
     }
   };
   
@@ -78,8 +75,8 @@ const DailyDeals = () => {
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="link" className="text-[#3665f3] flex items-center ml-2" onClick={handleSeeAll}>
-            See all <ArrowRight className="h-4 w-4 ml-1" />
+          <Button variant="link" className="text-[#3665f3] p-0" onClick={handleSeeAll}>
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -99,7 +96,7 @@ const DailyDeals = () => {
         </div>
       ) : products.length > 0 ? (
         <div 
-          id="deals-container"
+          ref={scrollContainerRef}
           className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
@@ -118,7 +115,6 @@ const DailyDeals = () => {
                 <div className="absolute top-2 left-2 bg-red-500 text-white text-xs py-1 px-2 rounded">
                   DEAL
                 </div>
-                {/* Mock discount percentage */}
                 <div className="absolute top-2 right-2 bg-green-500 text-white text-xs py-1 px-2 rounded">
                   -{Math.floor(Math.random() * 30 + 10)}%
                 </div>

@@ -5,16 +5,14 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
-import { MessageSquare } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { MessageSquare, Send, Check } from 'lucide-react';
 import { Product, User } from '@/models/types';
-import { getCurrentUser } from '@/utils/mockData';
 
 interface ContactSellerDialogProps {
   seller: User;
@@ -22,21 +20,50 @@ interface ContactSellerDialogProps {
 }
 
 const ContactSellerDialog = ({ seller, product }: ContactSellerDialogProps) => {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState('Is this item still available?');
   const [isOpen, setIsOpen] = useState(false);
+  const [isSent, setIsSent] = useState(false);
   const { toast } = useToast();
-  const currentUser = getCurrentUser();
   
   const handleSendMessage = () => {
     if (message.trim() === '') return;
     
+    // Add conversation to localStorage for Messages page
+    const conversations = JSON.parse(localStorage.getItem('conversations') || '[]');
+    const newConversation = {
+      id: Date.now().toString(),
+      sellerId: seller.id,
+      sellerName: seller.name,
+      sellerAvatar: seller.avatar,
+      productTitle: product.title,
+      lastMessage: message,
+      lastMessageTime: new Date().toISOString(),
+      messages: [
+        {
+          id: Date.now().toString(),
+          fromUser: 'current',
+          content: message,
+          timestamp: new Date().toISOString(),
+          isRead: true
+        }
+      ]
+    };
+    
+    conversations.push(newConversation);
+    localStorage.setItem('conversations', JSON.stringify(conversations));
+    
+    setIsSent(true);
+    
     toast({
       title: 'Message Sent',
-      description: `Your message has been sent to ${seller.name}. They will respond shortly.`,
+      description: `Your message has been sent to ${seller.name}.`,
     });
     
-    setMessage('');
-    setIsOpen(false);
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsSent(false);
+      setMessage('Is this item still available?');
+    }, 2000);
   };
   
   return (
@@ -51,7 +78,7 @@ const ContactSellerDialog = ({ seller, product }: ContactSellerDialogProps) => {
         <DialogHeader>
           <DialogTitle>Contact {seller.name}</DialogTitle>
           <DialogDescription>
-            Ask a question about "{product.title}"
+            Ask about "{product.title}"
           </DialogDescription>
         </DialogHeader>
         
@@ -62,22 +89,30 @@ const ContactSellerDialog = ({ seller, product }: ContactSellerDialogProps) => {
             </div>
             <div>
               <p className="font-medium">{seller.name}</p>
-              <p className="text-xs text-gray-500">Member since {new Date(seller.createdAt).toLocaleDateString()}</p>
+              <p className="text-xs text-gray-500">Member since {new Date(seller.createdAt).getFullYear()}</p>
             </div>
           </div>
           
-          <Textarea
-            placeholder="Write your message here..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="min-h-[120px]"
-          />
+          {!isSent ? (
+            <div className="space-y-4">
+              <Textarea
+                placeholder="Write your message here..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="min-h-[80px]"
+              />
+              <Button onClick={handleSendMessage} className="w-full">
+                <Send className="h-4 w-4 mr-2" />
+                Send Message
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-8 text-green-600">
+              <Check className="h-8 w-8 mr-2" />
+              <span className="font-medium">Message sent successfully!</span>
+            </div>
+          )}
         </div>
-        
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button onClick={handleSendMessage}>Send Message</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

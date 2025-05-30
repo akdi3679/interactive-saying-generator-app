@@ -6,13 +6,14 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BiddingInterface from '../components/BiddingInterface';
 import StarRating from '../components/StarRating';
+import ImageCarousel from '../components/ImageCarousel';
 import { ProductService } from '../services/ProductService';
 import { Product } from '../models/types';
 import WishlistButton from '../components/WishlistButton';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Share2, Tag, Truck, ArrowLeft, MessageSquare } from 'lucide-react';
+import { ShoppingCart, Share2, Tag, Truck, ArrowLeft } from 'lucide-react';
 import ContactSellerDialog from '../components/ContactSellerDialog';
 
 const ProductDetails = () => {
@@ -32,7 +33,6 @@ const ProductDetails = () => {
         setProduct(fetchedProduct);
         
         if (fetchedProduct) {
-          // Fetch similar products
           const allProducts = await ProductService.getProducts();
           const similar = allProducts
             .filter(p => p.category === fetchedProduct.category && p.id !== fetchedProduct.id)
@@ -50,7 +50,6 @@ const ProductDetails = () => {
   }, [productId]);
 
   const handleBidPlaced = async () => {
-    // Refresh product data after bid
     if (productId) {
       const updatedProduct = await ProductService.getProductById(productId);
       setProduct(updatedProduct);
@@ -107,25 +106,9 @@ const ProductDetails = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Images */}
-          <div className="space-y-4">
-            <div className="relative bg-gray-100 rounded-md overflow-hidden h-[400px]">
-              <img 
-                src={product.images[0]} 
-                alt={product.title}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            
-            {product.images.length > 1 && (
-              <div className="grid grid-cols-5 gap-2">
-                {product.images.map((image, index) => (
-                  <div key={index} className="bg-gray-100 rounded-md overflow-hidden cursor-pointer h-[80px]">
-                    <img src={image} alt={`${product.title} - Image ${index+1}`} className="h-full w-full object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
+          {/* Product Images with Carousel */}
+          <div>
+            <ImageCarousel images={product.images} title={product.title} />
           </div>
           
           {/* Product Info */}

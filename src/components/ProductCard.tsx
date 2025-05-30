@@ -3,7 +3,7 @@ import { Product } from '../models/types';
 import { formatDistanceToNow } from 'date-fns';
 import WishlistButton from './WishlistButton';
 import { useNavigate } from 'react-router-dom';
-import { Tag } from 'lucide-react';
+import { Tag, Truck, RotateCcw } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -42,6 +42,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <div className="p-3">
         <h3 className="font-medium text-sm leading-tight line-clamp-2 h-10">{product.title}</h3>
         
+        {/* Description */}
+        <p className="text-xs text-gray-600 mt-2 line-clamp-2">
+          {product.description}
+        </p>
+        
         <div className="mt-2">
           {hasAuction && (
             <div className="flex items-center text-xs text-gray-500">
@@ -73,6 +78,26 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <span>{product.condition}</span>
         </div>
         
+        {/* Shipping Info */}
+        {product.shipping && (
+          <div className="flex items-center mt-1 text-xs text-gray-600">
+            <Truck className="h-3 w-3 mr-1" />
+            <span>
+              {product.shipping.freeShipping ? 'Free shipping' : `$${product.shipping.cost.toFixed(2)} shipping`}
+            </span>
+          </div>
+        )}
+        
+        {/* Return Info */}
+        {product.returns && (
+          <div className="flex items-center mt-1 text-xs text-gray-600">
+            <RotateCcw className="h-3 w-3 mr-1" />
+            <span>
+              {product.returns.accepted ? `${product.returns.periodDays || 30} day returns` : 'No returns'}
+            </span>
+          </div>
+        )}
+        
         <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
           <a 
             href={`/seller/${product.seller.id}`}
@@ -89,12 +114,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
             {formatDistanceToNow(new Date(product.createdAt), { addSuffix: true })}
           </span>
         </div>
-        
-        {product.shipping?.freeShipping && (
-          <div className="mt-1 text-xs font-medium text-green-600">
-            Free shipping
-          </div>
-        )}
       </div>
     </div>
   );

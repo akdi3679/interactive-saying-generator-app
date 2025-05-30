@@ -39,6 +39,7 @@ const App = () => {
             <Route path="/groups/:groupId" element={<GroupDetail />} />
             <Route path="/bidding" element={<Bidding />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/daily-deals" element={<DailyDeals />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

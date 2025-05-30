@@ -1,11 +1,12 @@
 
 import { useState } from 'react';
 import { Bell, Menu, Search, X, MapPin, MessageSquare } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import AuthButtons, { getAuthState } from './AuthButtons';
 import SellItemButton from './SellItemButton';
+import LocationSelector from './LocationSelector';
 
 const Navbar = () => {
   const auth = getAuthState();
@@ -96,11 +97,10 @@ const Navbar = () => {
             <div className="flex-1">
               <SearchBar />
             </div>
-            <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border">
-              <MapPin className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-700 max-w-20 truncate">{selectedLocation.address.split(',')[0]}</span>
-              <span className="text-xs bg-[#3665f3] text-white px-2 py-1 rounded">{selectedLocation.range}mi</span>
-            </div>
+            <LocationSelector 
+              selectedLocation={selectedLocation}
+              onLocationChange={handleLocationChange}
+            />
           </div>
 
           {/* Third Row - Main Navigation */}
@@ -186,7 +186,7 @@ const Navbar = () => {
             </div>
 
             {/* Categories - Closer to main navigation */}
-            <div className="flex items-center space-x-4 text-sm ml-6">
+            <div className="flex items-center space-x-4 text-sm bg-gray-50 rounded-lg px-4 py-2 ml-4">
               <a
                 href="/search?category=Electronics"
                 className="text-gray-600 hover:text-[#3665f3] transition-colors"
@@ -230,17 +230,6 @@ const Navbar = () => {
                 }}
               >
                 Sports
-              </a>
-              <a
-                href="/search?category=Collectibles"
-                className="text-gray-600 hover:text-[#3665f3] transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('/search?category=Collectibles');
-                  return false;
-                }}
-              >
-                Collectibles
               </a>
             </div>
           </div>
