@@ -1,16 +1,14 @@
 
-import { useAuth as useSupabaseAuth } from '../context/AuthContext';
-import { useAuth as useMongoAuth } from '../context/MongoAuthContext';
-import { DATABASE_CONFIG } from '../config/database';
+import { TestAuthService } from '../services/TestAuthService';
 
 export const useDatabase = () => {
-  if (DATABASE_CONFIG.provider === 'mongodb') {
-    const mongoAuth = useMongoAuth();
-    return {
-      ...mongoAuth,
-      session: mongoAuth.user ? { user: mongoAuth.user } : null,
-    };
-  } else {
-    return useSupabaseAuth();
-  }
+  const user = TestAuthService.getCurrentUser();
+  
+  return {
+    user,
+    session: user ? { user } : null,
+    signIn: TestAuthService.signIn,
+    signOut: TestAuthService.signOut,
+    loading: false
+  };
 };

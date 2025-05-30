@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ProductService } from '@/services/ProductService';
-import { useDatabase } from '@/hooks/useDatabase';
+import { TestAuthService } from '@/services/TestAuthService';
 import { formatDistanceToNow } from 'date-fns';
 import { Clock, Gavel } from 'lucide-react';
 
@@ -25,9 +25,9 @@ const BiddingInterface = ({
 }: BiddingInterfaceProps) => {
   const [bidAmount, setBidAmount] = useState('');
   const [isPlacingBid, setIsPlacingBid] = useState(false);
-  const { user } = useDatabase();
   const { toast } = useToast();
 
+  const user = TestAuthService.getCurrentUser();
   const minBid = currentBid + 1;
 
   const handlePlaceBid = async () => {
