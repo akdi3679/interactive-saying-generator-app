@@ -68,8 +68,8 @@ const Navbar = () => {
         <div className="flex flex-col gap-3">
           {/* Top Row - Logo, Search, Location */}
           <div className="flex items-center gap-3">
-            {/* Logo */}
-            <div className="flex items-center">
+            {/* Logo - positioned higher */}
+            <div className="flex items-center -mt-1">
               <a href="/" className="text-2xl font-bold text-[#3665f3]">
                 eBay Clone
               </a>
@@ -225,7 +225,7 @@ const Navbar = () => {
                 <MessageSquare className="h-4 w-4" />
               </a>
 
-              {/* Categories - Close to main navigation */}
+              {/* Categories - Electronics, Sport, Fashion, Toy */}
               <div className="flex items-center space-x-1 ml-4">
                 {categories.map((category) => (
                   <a
@@ -281,10 +281,33 @@ const Navbar = () => {
             </div>
 
             {/* Sell Button - Bottom Right */}
-            <Button className="bg-[#3665f3] hover:bg-[#3665f3]/90 flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Sell
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline"
+                className="border-[#3665f3] text-[#3665f3] hover:bg-[#3665f3]/10 flex items-center gap-2"
+                onClick={() => navigate('/bidding')}
+              >
+                <Gavel className="h-4 w-4" />
+                Bid
+              </Button>
+              <Button 
+                className="bg-[#3665f3] hover:bg-[#3665f3]/90 flex items-center gap-2"
+                onClick={() => {
+                  if (currentUser) {
+                    // Open sell dialog or navigate to sell page
+                    toast({
+                      title: "Sell Feature",
+                      description: "Sell functionality would open here.",
+                    });
+                  } else {
+                    navigate('/signin');
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Sell
+              </Button>
+            </div>
           </div>
         </div>
 

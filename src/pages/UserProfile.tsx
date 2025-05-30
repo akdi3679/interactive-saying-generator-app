@@ -23,7 +23,8 @@ import {
   Plus,
   Gavel,
   Settings,
-  Link as LinkIcon
+  Link as LinkIcon,
+  UserPlus
 } from 'lucide-react';
 import StarRating from '../components/StarRating';
 
@@ -78,7 +79,7 @@ const UserProfile = () => {
       
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          {/* Profile Header */}
+          {/* Profile Header - Always Visible Overview */}
           <Card className="mb-8">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
@@ -145,6 +146,20 @@ const UserProfile = () => {
                           <Calendar className="h-4 w-4 mr-1" />
                           <span>Joined {new Date(user.joinDate).toLocaleDateString()}</span>
                         </div>
+                        <div className="flex items-center text-sm text-gray-500">
+                          <UserPlus className="h-4 w-4 mr-1" />
+                          <span>{user.connections.length} relations</span>
+                        </div>
+                      </div>
+                      
+                      {/* Last Badges - Show top 3 */}
+                      <div className="flex gap-2 mb-4">
+                        {user.badges.slice(0, 3).map((badge, index) => (
+                          <div key={index} className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full flex items-center">
+                            <Award className="h-3 w-3 mr-1" />
+                            {badge}
+                          </div>
+                        ))}
                       </div>
                       
                       <div className="flex items-center gap-4 mb-4">
@@ -171,223 +186,182 @@ const UserProfile = () => {
             </CardContent>
           </Card>
 
-          <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="badges">Badges</TabsTrigger>
-              <TabsTrigger value="groups">Groups</TabsTrigger>
-              <TabsTrigger value="connections">Connections</TabsTrigger>
-              <TabsTrigger value="listings">Listings</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          {/* Quick Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">${user.analytics.earnings.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">From {user.analytics.totalSales} sales</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
+                <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{user.analytics.activeListings}</div>
+                <p className="text-xs text-muted-foreground">Currently listed</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Profile Views</CardTitle>
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{user.analytics.profileVisits.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">This month</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Two Main Tabs */}
+          <Tabs defaultValue="posts" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="posts">Posts</TabsTrigger>
+              <TabsTrigger value="details">Details</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">${user.analytics.earnings.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">
-                      From {user.analytics.totalSales} sales
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
-                    <ShoppingBag className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{user.analytics.activeListings}</div>
-                    <p className="text-xs text-muted-foreground">
-                      Currently listed
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Profile Views</CardTitle>
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{user.analytics.profileVisits.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">
-                      This month
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="badges">
+            <TabsContent value="posts" className="space-y-6">
+              {/* Sell/Post Section */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Award className="h-5 w-5 mr-2" />
-                    Your Badges
-                  </CardTitle>
+                  <CardTitle>Create New Listing</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {user.badges.map((badge, index) => (
-                      <div key={index} className="flex flex-col items-center p-4 border border-gray-200 rounded-lg">
-                        <Award className="h-8 w-8 text-yellow-500 mb-2" />
-                        <span className="font-medium text-sm text-center">{badge}</span>
-                      </div>
-                    ))}
+                  <div className="flex gap-4">
+                    <Button className="flex-1 bg-[#3665f3] hover:bg-[#3665f3]/90">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Sell Product
+                    </Button>
+                    <Button variant="outline" className="flex-1">
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Want to Buy
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
 
-            <TabsContent value="groups">
+              {/* User Listings */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Users className="h-5 w-5 mr-2" />
-                    Joined Groups
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {user.groups.map((group) => (
-                      <div key={group.id} className="flex items-center p-4 border border-gray-200 rounded-lg">
-                        <img src={group.image} alt={group.name} className="w-12 h-12 rounded-full mr-3" />
-                        <div>
-                          <h3 className="font-medium">{group.name}</h3>
-                          <p className="text-sm text-gray-500">Active member</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="connections">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <LinkIcon className="h-5 w-5 mr-2" />
-                    Connections
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {user.connections.map((connection) => (
-                      <div key={connection.id} className="flex items-center p-4 border border-gray-200 rounded-lg">
-                        <img src={connection.avatar} alt={connection.name} className="w-12 h-12 rounded-full mr-3" />
-                        <div>
-                          <h3 className="font-medium">{connection.name}</h3>
-                          <p className="text-sm text-gray-500">Connected</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="listings">
-              <Card>
-                <CardHeader>
-                  <CardTitle>My Listings</CardTitle>
+                  <CardTitle>My Listings & Posts</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center py-12">
                     <ShoppingBag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Your listings will appear here</p>
+                    <p className="text-gray-500">Your listings and posts will appear here</p>
                     <Button className="mt-4">
                       <Plus className="h-4 w-4 mr-2" />
-                      Create Listing
+                      Create First Listing
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="analytics">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <TabsContent value="details" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Groups */}
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Product Views</CardTitle>
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Users className="h-5 w-5 mr-2" />
+                      Joined Groups
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{user.analytics.productViews.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">
-                      Total product views
-                    </p>
+                    <div className="space-y-3">
+                      {user.groups.map((group) => (
+                        <div key={group.id} className="flex items-center p-3 border border-gray-200 rounded-lg">
+                          <img src={group.image} alt={group.name} className="w-10 h-10 rounded-full mr-3" />
+                          <div>
+                            <h3 className="font-medium text-sm">{group.name}</h3>
+                            <p className="text-xs text-gray-500">Active member</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
-                
+
+                {/* Connections */}
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Product Likes</CardTitle>
-                    <Heart className="h-4 w-4 text-muted-foreground" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <LinkIcon className="h-5 w-5 mr-2" />
+                      Connections
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{user.analytics.productLikes.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">
-                      Total likes received
-                    </p>
+                    <div className="space-y-3">
+                      {user.connections.map((connection) => (
+                        <div key={connection.id} className="flex items-center p-3 border border-gray-200 rounded-lg">
+                          <img src={connection.avatar} alt={connection.name} className="w-10 h-10 rounded-full mr-3" />
+                          <div>
+                            <h3 className="font-medium text-sm">{connection.name}</h3>
+                            <p className="text-xs text-gray-500">Connected</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
-                
+
+                {/* All Badges */}
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Award className="h-5 w-5 mr-2" />
+                      All Badges
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">18.7%</div>
-                    <p className="text-xs text-muted-foreground">
-                      Views to sales
-                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {user.badges.map((badge, index) => (
+                        <div key={index} className="flex flex-col items-center p-3 border border-gray-200 rounded-lg">
+                          <Award className="h-6 w-6 text-yellow-500 mb-1" />
+                          <span className="font-medium text-xs text-center">{badge}</span>
+                        </div>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
-                
+
+                {/* Professional Analytics */}
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Avg. Sale Price</CardTitle>
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <TrendingUp className="h-5 w-5 mr-2" />
+                      Professional Analytics
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${(user.analytics.earnings / user.analytics.totalSales).toFixed(2)}</div>
-                    <p className="text-xs text-muted-foreground">
-                      Per item sold
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">94%</div>
-                    <p className="text-xs text-muted-foreground">
-                      Within 24 hours
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Repeat Customers</CardTitle>
-                    <Heart className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">34%</div>
-                    <p className="text-xs text-muted-foreground">
-                      Return rate
-                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center p-3 bg-blue-50 rounded-lg">
+                        <div className="text-xl font-bold text-blue-600">{user.analytics.productViews.toLocaleString()}</div>
+                        <div className="text-xs text-blue-500">Product Views</div>
+                      </div>
+                      <div className="text-center p-3 bg-green-50 rounded-lg">
+                        <div className="text-xl font-bold text-green-600">{user.analytics.productLikes.toLocaleString()}</div>
+                        <div className="text-xs text-green-500">Product Likes</div>
+                      </div>
+                      <div className="text-center p-3 bg-purple-50 rounded-lg">
+                        <div className="text-xl font-bold text-purple-600">18.7%</div>
+                        <div className="text-xs text-purple-500">Conversion Rate</div>
+                      </div>
+                      <div className="text-center p-3 bg-orange-50 rounded-lg">
+                        <div className="text-xl font-bold text-orange-600">94%</div>
+                        <div className="text-xs text-orange-500">Response Rate</div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
