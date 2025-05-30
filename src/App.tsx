@@ -14,6 +14,7 @@ import Groups from "./pages/Groups";
 import GroupDetail from "./pages/GroupDetail";
 import Bidding from "./pages/Bidding";
 import Messages from "./pages/Messages";
+import DailyDeals from "./pages/DailyDeals";
 import { MongoAuthProvider } from "./context/MongoAuthContext";
 import { initializeTestData } from "./utils/testData";
 
