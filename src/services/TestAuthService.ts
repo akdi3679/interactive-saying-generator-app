@@ -77,6 +77,30 @@ export class TestAuthService {
     return { user: null, error: "Invalid credentials" };
   }
 
+  static async signUp(email: string, password: string, name: string): Promise<{ user: TestUser | null; error: string | null }> {
+    // For demo purposes, we'll just create a new user based on the provided info
+    const newUser: TestUser = {
+      ...testUser,
+      id: `user-${Date.now()}`,
+      email,
+      name,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
+      joinDate: new Date().toISOString().split('T')[0],
+      analytics: {
+        productViews: 0,
+        productLikes: 0,
+        profileVisits: 0,
+        earnings: 0,
+        totalSales: 0,
+        activeListings: 0
+      }
+    };
+    
+    this.currentUser = newUser;
+    localStorage.setItem('testUser', JSON.stringify(newUser));
+    return { user: newUser, error: null };
+  }
+
   static signOut(): void {
     this.currentUser = null;
     localStorage.removeItem('testUser');

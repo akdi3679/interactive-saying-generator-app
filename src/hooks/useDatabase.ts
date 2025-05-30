@@ -8,6 +8,7 @@ export const useDatabase = () => {
     user,
     session: user ? { user } : null,
     signIn: TestAuthService.signIn,
+    signUp: TestAuthService.signUp,
     signOut: TestAuthService.signOut,
     loading: false
   };

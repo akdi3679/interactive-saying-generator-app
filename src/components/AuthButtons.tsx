@@ -29,9 +29,9 @@ export const getAuthState = () => {
     isLoggedIn: !!user,
     user: user ? {
       id: user.id,
-      name: user?.user_metadata?.name || user.email?.split('@')[0] || 'User',
-      email: user.email || '',
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
       createdAt: new Date()
     } : null,
     isLoading: loading
