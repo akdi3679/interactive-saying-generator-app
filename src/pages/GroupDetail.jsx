@@ -1,24 +1,23 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { GroupService } from '@/services/GroupService';
-import { Group } from '@/models/group.types';
-import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GroupService } from '../services/GroupService';
+import { useDatabase } from '../hooks/useDatabase';
+import { useToast } from '../hooks/use-toast';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Users, ArrowLeft, Calendar } from 'lucide-react';
 
 const GroupDetail = () => {
-  const { groupId } = useParams<{ groupId: string }>();
-  const [group, setGroup] = useState<Group | null>(null);
+  const { groupId } = useParams();
+  const [group, setGroup] = useState(null);
   const [isMember, setIsMember] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user } = useDatabase();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -70,7 +69,6 @@ const GroupDetail = () => {
           title: "Joined Group",
           description: `You've successfully joined ${group?.name}`,
         });
-        // Refresh group data to update member count
         fetchGroup();
       }
     } catch (error) {
@@ -169,7 +167,6 @@ const GroupDetail = () => {
           </Card>
         </div>
 
-        {/* Group Content Area */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <Card>

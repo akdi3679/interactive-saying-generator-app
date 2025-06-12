@@ -1,36 +1,30 @@
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog';
+} from '../ui/dialog';
 import { 
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { GroupService } from '@/services/GroupService';
-import { Group } from '@/models/group.types';
-import { useAuth } from '@/context/AuthContext';
+} from '../ui/select';
+import { useToast } from '../../hooks/use-toast';
+import { GroupService } from '../../services/GroupService';
+import { useDatabase } from '../../hooks/useDatabase';
 import { Share } from 'lucide-react';
 
-interface PostToGroupDialogProps {
-  productId: string;
-  productTitle: string;
-}
-
-export const PostToGroupDialog = ({ productId, productTitle }: PostToGroupDialogProps) => {
+export const PostToGroupDialog = ({ productId, productTitle }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [userGroups, setUserGroups] = useState<Group[]>([]);
-  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
-  const { user } = useAuth();
+  const [userGroups, setUserGroups] = useState([]);
+  const [selectedGroupId, setSelectedGroupId] = useState('');
+  const { user } = useDatabase();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -55,7 +49,6 @@ export const PostToGroupDialog = ({ productId, productTitle }: PostToGroupDialog
       return;
     }
 
-    // In a real app, this would create a post or share the product to the group
     toast({
       title: "Shared to Group",
       description: `"${productTitle}" has been shared to the group.`,
