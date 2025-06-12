@@ -1,5 +1,5 @@
 
-import { createGroup as mongoCreateGroup, getGroups as mongoGetGroups, joinGroup as mongoJoinGroup } from '../lib/mongodb';
+import { createGroup as mongoCreateGroup, getGroups as mongoGetGroups, joinGroup as mongoJoinGroup, getUserGroups as mongoGetUserGroups, isUserMember as mongoIsUserMember } from '../lib/mongodb';
 
 export const GroupService = {
   async createGroup(groupData) {
@@ -46,7 +46,7 @@ export const GroupService = {
 
   async getUserGroups(userId) {
     try {
-      return [];
+      return await mongoGetUserGroups(userId);
     } catch (error) {
       console.error('Error fetching user groups:', error);
       return [];
@@ -55,7 +55,7 @@ export const GroupService = {
 
   async isUserMember(groupId, userId) {
     try {
-      return false;
+      return await mongoIsUserMember(groupId, userId);
     } catch (error) {
       console.error('Error checking membership:', error);
       return false;
@@ -65,13 +65,35 @@ export const GroupService = {
   async initializeDefaultGroups() {
     try {
       const groups = await mongoGetGroups();
-      const hasTopSale = groups.some((g) => g.name === 'Top Sale');
+      const hasTopSale = groups.some((g) => g.name === 'Buy & Sell Everything');
       
       if (!hasTopSale) {
         await this.createGroup({
-          name: 'Top Sale',
-          description: 'Best deals and trending items',
+          name: 'Buy & Sell Everything',
+          description: 'A community for buying and selling all kinds of items',
           category: 'General',
+          isPublic: true,
+          createdBy: 'system'
+        });
+      }
+
+      const hasElectronics = groups.some((g) => g.name === 'Electronics Market');
+      if (!hasElectronics) {
+        await this.createGroup({
+          name: 'Electronics Market',
+          description: 'Buy and sell electronics, gadgets, and tech items',
+          category: 'Electronics',
+          isPublic: true,
+          createdBy: 'system'
+        });
+      }
+
+      const hasFashion = groups.some((g) => g.name === 'Fashion Exchange');
+      if (!hasFashion) {
+        await this.createGroup({
+          name: 'Fashion Exchange',
+          description: 'Clothes, shoes, accessories and fashion items',
+          category: 'Fashion',
           isPublic: true,
           createdBy: 'system'
         });

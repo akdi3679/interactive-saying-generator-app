@@ -4,7 +4,8 @@ import { DATABASE_CONFIG } from '../config/database';
 let mockDatabase = {
   users: [],
   groups: [],
-  groupMemberships: []
+  groupMemberships: [],
+  groupPosts: []
 };
 
 export const connectToMongoDB = async () => {
@@ -107,5 +108,60 @@ export const joinGroup = async (groupId, userId) => {
   } catch (error) {
     console.error('Error joining group:', error);
     return false;
+  }
+};
+
+export const getUserGroups = async (userId) => {
+  try {
+    const userMemberships = mockDatabase.groupMemberships.filter(m => m.userId === userId);
+    const userGroups = userMemberships.map(membership => {
+      return mockDatabase.groups.find(group => group.id === membership.groupId);
+    }).filter(Boolean);
+    
+    return userGroups;
+  } catch (error) {
+    console.error('Error fetching user groups:', error);
+    return [];
+  }
+};
+
+export const isUserMember = async (groupId, userId) => {
+  try {
+    const membership = mockDatabase.groupMemberships.find(
+      m => m.groupId === groupId && m.userId === userId
+    );
+    return !!membership;
+  } catch (error) {
+    console.error('Error checking membership:', error);
+    return false;
+  }
+};
+
+export const createGroupPost = async (postData) => {
+  try {
+    const newPost = {
+      ...postData,
+      id: Math.random().toString(36).substr(2, 9),
+      createdAt: new Date(),
+      likes: 0,
+      comments: []
+    };
+
+    mockDatabase.groupPosts.push(newPost);
+    return newPost.id;
+  } catch (error) {
+    console.error('Error creating group post:', error);
+    return null;
+  }
+};
+
+export const getGroupPosts = async (groupId) => {
+  try {
+    return mockDatabase.groupPosts
+      .filter(post => post.groupId === groupId)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } catch (error) {
+    console.error('Error fetching group posts:', error);
+    return [];
   }
 };
